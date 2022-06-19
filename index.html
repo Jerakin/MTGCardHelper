@@ -33,7 +33,7 @@
 			let since_last_request = Date.now();
 			let selected_index = 0;
 			let latest_data = {}
-			$(document).on("click", "button", function(event){
+			$(document).on("click", "a.mtg-card", function(event){
 				if (latest_data){
 					const this_name = jQuery(this).text();
 					$.each(latest_data["data"], function(index, element){
@@ -46,14 +46,15 @@
 				}
 			});
 
-			// Not working
-			// $(document).on('mouseover', 'button', function(event) {
+
+			// // Not working
+			// $(document).on('mouseover', 'a', function(event) {
 			// 	console.log(jQuery(this).text())
-			// 	jQuery(this).css("background-color", "pink");
+			// 	jQuery(this).addClass("active");
 			// });
-			// $(document).on('mouseout', 'button', function(event) {
+			// $(document).on('mouseout', 'a', function(event) {
 			// 	console.log(jQuery(this).text())
-			// 	jQuery(this).css("background-color", "white");
+			// 	jQuery(this).removeClass("active");
 			// });
 
 			$('#card-search').on("focus", function(){
@@ -94,7 +95,7 @@
 							get_call.done(function(data) {
 								latest_data = data;
 								$.each(data["data"], function(index, element){
-									$("#search-result").append("<button class='dropdown-item bg-light mx-3'>" + element["name"] + "</button>")
+									$("#search-result").append("<a href='#' class='mtg-card list-group-item list-group-item-action'>" + element["name"] + "</a>")
 								});
 								since_last_request = Date.now();
 							});
@@ -107,18 +108,19 @@
 	</script>
 </head>
 
-<body onLoad="onLoaded()">
+<body class="d-flex flex-column min-vh-100" onLoad="onLoaded()">
 	<div class="container">
 		<header class="navbar align-items-center">
 			<a href="javascript:history.go(0)">
 				MTG Card Helper
 			</a>
 		</header>
-		<div class="form-group">
+		<div class="form-group w-100">
 			<label class="form-label" for="card-search">Search</label>
 			<input class="form-control" type="text" id="card-search" name="card-search">
 		</div>
-		<div id="search-result" class="rounded-1 border border-1 border-dark border-opacity-50 visually-hidden"></div>
+		<div id="search-result" class="list-group bg-light search-list overflow-scroll visually-hidden position-sticky my-1"></div>
+
 		<div class="m-2">
 			<label for="scale" class="visually-hidden">Scale</label>
 			<div class="input-group mb-2 mr-sm-2">
@@ -128,6 +130,10 @@
 				<input type="text" class="form-control" id="scale" placeholder="100">
 			</div>
 		</div>
+		<footer class="fixed-bottom">
+			<div>Created by <a href="https://github.com/Jerakin" target="_blank">Jerakin</a>
+				| Powered by <a href="https://www.scryfall.com/" target="_">Scryfall</a></div>
+		</footer>
 	</div>
 </body>
 <script>

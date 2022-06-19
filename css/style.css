@@ -12,5 +12,9 @@
 * written permission of Adobe. 
 **************************************************************************/
 
-.ch-dropdown-item {background: #61ab88;}
-.ch-dropdown-item:hover {background: #0c4128;}
+.search-list {
+    max-height: 250px !important;
+    overflow-x:hidden !important;
+    z-index: 1070;
+    width:inherit !important;
+}
