@@ -284,13 +284,13 @@
 						clearTimeout(typing_timer);
 					}
 				}
+			}
 
-				$myInput.onkeyup = function(event) {
-					if (event.key === "Backspace" || (event.key.length === 1 && (event.key >= "A" && event.key <= "Z") || (event.key >= "a" && event.key <= "z"))) {
-						selected_index = -1;
-						clearTimeout(typing_timer);
-						typing_timer = setTimeout(update_card_list, 200);
-					}
+			$myInput.onkeyup = function(event) {
+				if (event.key === "Backspace" || (event.key.length === 1 && (event.key >= "A" && event.key <= "Z") || (event.key >= "a" && event.key <= "z"))) {
+					selected_index = -1;
+					clearTimeout(typing_timer);
+					typing_timer = setTimeout(update_card_list, 200);
 				}
 			}
 		});
