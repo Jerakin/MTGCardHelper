@@ -103,6 +103,7 @@ function loadJSX() {
 }
 
 function downloadAndImport(args) {
+	console.log("[DEBUG] : " + "Import: " + args.url)
 	const csInterface = new CSInterface();
 	// call the evalScript we made in the jsx file
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {

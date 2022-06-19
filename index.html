@@ -34,23 +34,23 @@
 			let selected_index = -1;
 			let latest_data = {}
 			let active_list_type = ""
-
+			console.log("[DEBUG] : " + "Extension Start")
 			function get_property_group(track){
 				return`
-<div class="p-2 border-start border-1 ${track % 2 ? "border-primary" : "border-warning" }" id="properties-${track}">
+<div class="p-2 border-start border-1 border-dark ${track % 2 ? "border-opacity-10" : "border-opacity-25" }" id="properties-${track}">
 	<label for="track" class="d-none">Track</label>
 	<div class="input-group mb-2 mr-sm-2">
 		<div class="input-group-prepend">
 			<div class="input-group-text">Track</div>
 		</div>
-		<input type="number" class="form-control" id="track">
+		<input type="number" class="form-control" id="track-${track}">
 	</div>
 	<label for="scale" class="d-none">Scale</label>
 	<div class="input-group mb-2 mr-sm-2">
 		<div class="input-group-prepend">
 			<div class="input-group-text">Scale</div>
 		</div>
-		<input type="text" class="form-control" id="scale" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="100.0">
+		<input type="text" class="form-control" id="scale-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="100.0">
 	</div>
 
 	<div class="row">
@@ -59,14 +59,14 @@
 			<div class="input-group-prepend">
 				<div class="input-group-text">Pos X</div>
 			</div>
-			<input type="text" class="form-control" id="pos-x" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
+			<input type="text" class="form-control" id="pos-x-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
 		</div>
 		<label for="pos-x" class="d-none">PosY</label>
 		<div class="input-group mb-2 mr-sm-2 col">
 			<div class="input-group-prepend">
 				<div class="input-group-text">Pos Y</div>
 			</div>
-			<input type="text" class="form-control" id="pos-y" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
+			<input type="text" class="form-control" id="pos-y-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
 		</div>
 	</div>
 </div>
@@ -136,20 +136,22 @@
 
 			function collect_track_properties(){
 				let prop = []
-				
-				let p = {}
-				p.scale = document.getElementById('scale').value;
-				p.track = document.getElementById('track').value;
-				p.x = document.getElementById('pos-x').value;
-				p.y = document.getElementById('pos-y').value;
+				console.log("[DEBUG] : " + "Start Collection")
+				const p_group = $("#properties-group");
+				for (var i = 0; i < p_group.children().length; i++) {
+					console.log("[DEBUG] : " + "Collect Track Properties: " + i)
+					let p = {}
+					p.scale = document.getElementById('scale-'+ i).value;
+					p.track = document.getElementById('track-'+ i).value;
+					p.x = document.getElementById('pos-x-'+ i).value;
+					p.y = document.getElementById('pos-y-'+ i).value;
 
-				p.scale = p.scale && parseFloat(p.scale)
-				p.track = p.track && parseInt(p.track)
-				p.x = p.x && parseFloat(p.x)
-				p.y = p.y && parseFloat(p.y)
-
-
-				prop.push(p)
+					p.scale = p.scale && parseFloat(p.scale)
+					p.track = p.track && parseInt(p.track)
+					p.x = p.x && parseFloat(p.x)
+					p.y = p.y && parseFloat(p.y)
+					prop.push(p)
+				}
 				return prop
 			}
 
@@ -162,6 +164,7 @@
 			// List entry click
 			$(document).on("click", "a.mtg-card", function(event){
 				if (latest_data){
+					console.log("[DEBUG] : " + "Download from list")
 					const this_name = jQuery(this).text();
 					$.each(latest_data["data"], function(index, element){
 						if (element["name"] === this_name) {
@@ -173,8 +176,9 @@
 				}
 			});
 
-			// Button to find all sets
+			// Button to find all versions of a card
 			$(document).on("click", "img.mtg-card", function(event){
+				console.log("[DEBUG] : " + "Update Version View")
 				show_list("card-image-result", true)
 				$("#card-image-result").empty()
 				active_list_type = "card-image-result"
@@ -184,6 +188,7 @@
 
 			// Big cards
 			$(document).on("click", "img.set-card-img", function(event){
+				console.log("[DEBUG] : " + "Download from image")
 				active_list_type = "card-image-result"
 				const url = jQuery(this).data("card-uri");
 				const card_name = jQuery(this).data("card-name");
@@ -213,8 +218,8 @@
 				}
 			})
 			.on("focusout", function(){
-				show_list("-", false)
 				setTimeout(function() {
+					show_list("-", false)
 					if (selected_index !== -1) {
 						selected_index = -1;
 						set_active(selected_index)
@@ -236,6 +241,7 @@
 				}
 				else if (event.key === 'Enter') {
 					if ($myInput.value.length >= 3) {
+						console.log("[DEBUG] : " + "Download from enter key")
 						if (selected_index === -1) {
 							const element = latest_data["data"][0]
 							const url = element["image_uris"]["png"];
@@ -279,13 +285,13 @@
 			<div id="card-list-result" class="list-group d-none overflow-auto h-100"></div>
 			<div id="card-image-result" class="d-none overflow-auto me-0 h-100 row row-cols-3"></div>
 		</div>
-		<button class="btn btn-primary w-75 shadow-none m-auto">Add Track Setting</button>
 		<div class="p-2" id="properties-group">
 		</div>
 		<footer class="fixed-bottom">
 			<div>Created by <a href="https://github.com/Jerakin" target="_blank">Jerakin</a>
 				| Powered by <a href="https://www.scryfall.com/" target="_">Scryfall</a></div>
 		</footer>
+		<button class="btn btn-primary w-75 shadow-none m-auto">Add Track Setting</button>
 	</div>
 </body>
 <script>
