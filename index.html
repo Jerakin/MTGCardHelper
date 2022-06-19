@@ -249,9 +249,8 @@
 						}
 					}, 150)
 				}
-			});
-
-			$myInput.onkeydown = function(event){
+			})
+			.on("keydown", function(event){
 				if (event.key === 'ArrowUp') {
 					event.preventDefault();
 					selected_index = Math.max(selected_index-1, -1);
@@ -284,15 +283,16 @@
 						clearTimeout(typing_timer);
 					}
 				}
-			}
-
-			$myInput.onkeyup = function(event) {
-				if (event.key === "Backspace" || (event.key.length === 1 && (event.key >= "A" && event.key <= "Z") || (event.key >= "a" && event.key <= "z"))) {
+			})
+			.on("keyup", function(event) {
+				if (event.key === "Space" || event.key === "Backspace" ||
+						(event.key.length === 1 && (event.key >= "A" && event.key <= "Z") ||
+								(event.key >= "a" && event.key <= "z"))) {
 					selected_index = -1;
 					clearTimeout(typing_timer);
 					typing_timer = setTimeout(update_card_list, 200);
 				}
-			}
+			});
 		});
 	</script>
 </head>
