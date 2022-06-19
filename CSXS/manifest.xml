@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="5.0" ExtensionBundleId="com.adobe.PProPanel" ExtensionBundleVersion="11.1"
-ExtensionBundleName="Premiere Pro sample panel" 
+<ExtensionManifest Version="5.0" ExtensionBundleId="com.jerakin.mtgcardhelper" ExtensionBundleVersion="11.1"
+ExtensionBundleName="MTG Card Helper"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="com.adobe.PProPanel" Version="10.3.0" />
+		<Extension Id="com.jerakin.mtgcardhelper" Version="10.3.0" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -18,7 +18,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	</ExecutionEnvironment>
 
 	<DispatchInfoList>
-		<Extension Id="com.adobe.PProPanel">
+		<Extension Id="com.jerakin.mtgcardhelper">
 			<DispatchInfo >
 				<Resources>
 					<MainPath>./index.html</MainPath>
@@ -36,7 +36,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>PProPanel (SDK sample panel)</Menu>
+					<Menu>MTG Card Helper</Menu>
 					<Geometry>
 						<Size>
 							<Height>300</Height>
