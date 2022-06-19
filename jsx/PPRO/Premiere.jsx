@@ -2860,20 +2860,83 @@ $._PPP_={
 		return(joined);
 	},
 
+	chInsertClip : function(clip){
+		var seq = app.project.activeSequence;
+		if (seq) {
+			if (!clip.isSequence()) {
+
+				if (clip.type !== ProjectItemType.BIN) {
+					var numVTracks = seq.videoTracks.numTracks;
+					var targetVTrack = seq.videoTracks[(numVTracks - 1)];
+					if (targetVTrack) {
+						// If there are already clips in this track, append this one to the end. Otherwise, insert at start time.ck) {
+						//var now = seq.getPlayerPosition()
+						if (targetVTrack.clips.numItems > 0) {
+							var lastClip = targetVTrack.clips[(targetVTrack.clips.numItems - 1)];
+							if (lastClip) {
+								targetVTrack.insertClip(clip, lastClip.end.seconds);
+							}
+						} else {
+							var timeAtZero = new Time();
+							targetVTrack.insertClip(clip, timeAtZero.seconds);
+
+							// Using linkSelection/unlinkSelection calls, panels can remove just the audio (or video) of a given clip.
+							var newlyAddedClip = targetVTrack.clips[(targetVTrack.clips.numItems - 1)];
+							//$._PPP_.updateEventPanel("Inserting Clip " + targetVTrack.clips.numItems - 1);
+							if (newlyAddedClip) {
+								newlyAddedClip.setSelected(true, true);
+								seq.unlinkSelection();
+								newlyAddedClip.remove(true, true);
+								seq.linkSelection();
+							} else {
+								$._PPP_.updateEventPanel("Could not add clip.");
+							}
+						}
+					} else {
+						$._PPP_.updateEventPanel("Could not find first video track.");
+					}
+				} else {
+					$._PPP_.updateEventPanel(clip.name + " is a bin.");
+				}
+			} else {
+				$._PPP_.updateEventPanel(clip.name + " is a sequence.");
+			}
+		} else {
+			$._PPP_.updateEventPanel("Couldn't locate first projectItem.");
+		}
+	},
+
+	chGetResourceWithPathInBin : function (path, bin) {
+		for (var i = 0; i < bin.children.numItems; i++) {
+			if (bin.children[i].getMediaPath() === path) {
+				return bin.children[i];
+			}
+		}
+		return false;
+	},
 
 	chImportFile : function (file_path) {
 		const bin_name = 'card-images';
 		var bin = $._PPP_.searchForBinWithName(bin_name);
 		if (bin === undefined){
+			$._PPP_.updateEventPanel("Created bin: " + bin_name);
 			app.project.rootItem.createBin(bin_name);
 			bin = $._PPP_.searchForBinWithName(bin_name);
 		}
 		if (bin) {
 			bin.select();
-			app.project.importFiles([file_path],
-				true,
-				bin,
-				true);
+			var clip = $._PPP_.chGetResourceWithPathInBin(file_path, bin);
+			if (clip === false) {
+				$._PPP_.updateEventPanel("Importing file: " + file_path);
+				app.project.importFiles([file_path],
+					true,
+					bin,
+					false);
+				clip = $._PPP_.chGetResourceWithPathInBin(file_path, bin);
+			}
+
+			$._PPP_.updateEventPanel("Adding image: " + clip.name);
+			$._PPP_.chInsertClip(clip)
 		}
 	}
 };

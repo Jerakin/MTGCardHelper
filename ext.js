@@ -271,8 +271,11 @@ function downloadAndImport(url, fileName) {
 		fs.stat(fullPath, function(err, stat) {
 			if(err == null) {
 				console.log("Import: " + fullPath)
-				// First we need to check if it already exists
-				//csInterface.evalScript("$._PPP_.chImportFile('" + fullPath + "')");
+				// First we need to check if it already exists in the project
+				if (true){
+					csInterface.evalScript("$._PPP_.chImportFile('" + fullPath + "')");
+				}
+				//
 			} else if(err.code === 'ENOENT') {
 				const file = fs.createWriteStream(fullPath);
 				const request = https.get(url, function(response) {
