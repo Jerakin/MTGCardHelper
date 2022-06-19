@@ -20,39 +20,81 @@
 	<meta charset="utf-8">
 	<script src="./ext.js"></script>
 	<script src="./lib/CSInterface.js"></script>
-	<script src="./lib/jquery-1.9.1.js"></script>
+<!--	<script src="./lib/jquery-1.9.1.js"></script>-->
+<!--	<script src="./lib/jquery-1.12.4.js"></script>-->
+		<script src="./lib/jquery-3.6.0.js"></script>
 	<script src="./lib/Vulcan.js"></script>
 	<script src="./lib/bootstrap.bundle.min.js"></script>
-	<link id="bootstap" href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link id="bootstrap" href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link id="style" href="css/style.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript">
 		$(document).ready(function () {
 			const $myInput = document.getElementById('card-search');
 			let since_last_request = Date.now();
-			console.log("Started")
+			let selected_index = 0;
+			let latest_data = {}
+			$(document).on("click", "button", function(event){
+				if (latest_data){
+					const this_name = jQuery(this).text();
+					$.each(latest_data["data"], function(index, element){
+						if (element["name"] === this_name) {
+							const $scale = document.getElementById('scale');
+							const url = element["image_uris"]["png"];
+							downloadAndImport(url, this_name + ".png", ($scale.value || 100))
+						}
+					});
+				}
+			});
+
+			// Not working
+			// $(document).on('mouseover', 'button', function(event) {
+			// 	console.log(jQuery(this).text())
+			// 	jQuery(this).css("background-color", "pink");
+			// });
+			// $(document).on('mouseout', 'button', function(event) {
+			// 	console.log(jQuery(this).text())
+			// 	jQuery(this).css("background-color", "white");
+			// });
+
+			$('#card-search').on("focus", function(){
+				if ($('#search-result').children().length > 0) {
+					$("#search-result").removeClass("visually-hidden")
+				}
+			})
+			.on("focusout", function(){
+				setTimeout(function() {
+					$("#search-result").addClass("visually-hidden")
+				}, 100)
+			});
+
 			$myInput.onkeydown = function(event){
-				if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-					// TODO: This should select an option in our dropdown
+				if (event.key === 'ArrowUp') {
+					event.preventDefault();
+					selected_index -= 1;
+				}
+				else if (event.key === 'ArrowDown') {
+					event.preventDefault();
+					selected_index += 1;
 				}
 				else if ($myInput.value.length >= 3) {
 					if (event.key === 'Enter') {
 						// TODO: This should use the dropdown
 						const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
 						get_call.done(function(data) {
-							const $scale_x = document.getElementById('scale-x');
-							const $scale_y = document.getElementById('scale-y');
+							const $scale = document.getElementById('scale');
 							const url = data["data"][0]["image_uris"]["png"];
 							const name = data["data"][0]["name"];
-							downloadAndImport(url, name + ".png", ($scale_x.value || 100), ($scale_y.value || 100))
-
+							downloadAndImport(url, name + ".png", ($scale.value || 100))
 						});
 					}
 					else {
 						if(Date.now() - since_last_request > 66) {
-							$("#search-result").empty()
+							$("#search-result").empty().removeClass("visually-hidden")
 							const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
 							get_call.done(function(data) {
+								latest_data = data;
 								$.each(data["data"], function(index, element){
-									$("#search-result").append("<a class='dropdown-item'>" + element["name"] + "</a>")
+									$("#search-result").append("<button class='dropdown-item bg-light mx-3'>" + element["name"] + "</button>")
 								});
 								since_last_request = Date.now();
 							});
@@ -75,28 +117,18 @@
 		<div class="form-group">
 			<label class="form-label" for="card-search">Search</label>
 			<input class="form-control" type="text" id="card-search" name="card-search">
-			<div id="search-result" ></div>
 		</div>
-
-		<label>Scale</label>
-		<div class="d-inline">
-			<label for="scale-x" class="visually-hidden">X</label>
+		<div id="search-result" class="rounded-1 border border-1 border-dark border-opacity-50 visually-hidden"></div>
+		<div class="m-2">
+			<label for="scale" class="visually-hidden">Scale</label>
 			<div class="input-group mb-2 mr-sm-2">
 				<div class="input-group-prepend">
-					<div class="input-group-text">X</div>
+					<div class="input-group-text">Scale</div>
 				</div>
-				<input type="text" class="form-control" id="scale-x" placeholder="100">
-			</div>
-			<label for="scale-y" class="visually-hidden">X</label>
-			<div class="input-group mb-2 mr-sm-2">
-				<div class="input-group-prepend">
-					<div class="input-group-text">Y</div>
-				</div>
-				<input type="text" class="form-control" id="scale-y" placeholder="100">
+				<input type="text" class="form-control" id="scale" placeholder="100">
 			</div>
 		</div>
 	</div>
-
 </body>
 <script>
 	document.body.onbeforeunload = function () {
