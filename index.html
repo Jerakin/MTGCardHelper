@@ -52,24 +52,24 @@
 			function show_list(name, toggle) {
 				if (name === "card-list-result"){
 					if (toggle) {
-						$("#card-list-result").removeClass("visually-hidden");
-						$("#card-image-result").addClass("visually-hidden");
-						$("#parent-result").removeClass("visually-hidden");
-						$("#properties").addClass("visually-hidden");
+						$("#card-list-result").removeClass("d-none");
+						$("#card-image-result").addClass("d-none");
+						$("#parent-result").removeClass("d-none");
+						$("#properties").addClass("d-none");
 					}
 				} else {
 					if (toggle) {
-						$("#card-image-result").removeClass("visually-hidden");
-						$("#card-list-result").addClass("visually-hidden");
-						$("#parent-result").removeClass("visually-hidden");
-						$("#properties").addClass("visually-hidden");
+						$("#card-image-result").removeClass("d-none");
+						$("#card-list-result").addClass("d-none");
+						$("#parent-result").removeClass("d-none");
+						$("#properties").addClass("d-none");
 					}
 				}
 				if (!toggle) {
-					$("#card-list-result").addClass("visually-hidden");
-					$("#card-image-result").addClass("visually-hidden");
-					$("#parent-result").addClass("visually-hidden");
-					$("#properties").removeClass("visually-hidden");
+					$("#card-list-result").addClass("d-none");
+					$("#card-image-result").addClass("d-none");
+					$("#parent-result").addClass("d-none");
+					$("#properties").removeClass("d-none");
 				}
 			}
 
@@ -222,12 +222,12 @@
 			<label class="form-label" for="card-search">Search</label>
 			<input class="form-control" type="text" id="card-search" name="card-search">
 		</div>
-		<div id="parent-result" class="p-2 result-list visually-hidden">
-			<div id="card-list-result" class="list-group visually-hidden overflow-auto w-100 h-100"></div>
-			<div id="card-image-result" class="visually-hidden overflow-auto w-100 h-100 row row-cols-3"></div>
+		<div id="parent-result" class="p-2 result-list w-100 d-none">
+			<div id="card-list-result" class="list-group d-none overflow-auto h-100"></div>
+			<div id="card-image-result" class="d-none overflow-auto me-0 h-100 row row-cols-3"></div>
 		</div>
 		<div class="p-2" id="properties">
-			<label for="scale" class="visually-hidden">Scale</label>
+			<label for="scale" class="d-none">Scale</label>
 			<div class="input-group mb-2 mr-sm-2">
 				<div class="input-group-prepend">
 					<div class="input-group-text">Scale</div>
