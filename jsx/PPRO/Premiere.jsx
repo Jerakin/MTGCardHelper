@@ -2845,9 +2845,9 @@ $._PPP_={
 	},
 
 	chProjectPath : function() {
-		console.log("start");
+
 		const projectPath = app.project.path;
-		console.log(projectPath);
+
 		// split the path into an array
 		const parsed = projectPath.split("/");
 
@@ -2856,35 +2856,24 @@ $._PPP_={
 
 		// rejoin the array, giving the parent directory of the Premiere project file
 		const joined = parsed.join("/");
-		console.log(joined);
+
 		return(joined);
+	},
+
+
+	chImportFile : function (file_path) {
+		const bin_name = 'card-images';
+		var bin = $._PPP_.searchForBinWithName(bin_name);
+		if (bin === undefined){
+			app.project.rootItem.createBin(bin_name);
+			bin = $._PPP_.searchForBinWithName(bin_name);
+		}
+		if (bin) {
+			bin.select();
+			app.project.importFiles([file_path],
+				true,
+				bin,
+				true);
+		}
 	}
-	//
-	// chCreateFolder : function(folder_path) {
-	// 	const the_folder = new Folder(folder_path);
-	// 	if (!the_folder.exists) {
-	// 		the_folder.create()
-	// 	}
-	// },
-	//
-	// chImportFileUrl : function (name, url) {
-	// 	if (actualProjectPath) {
-	// 		const outFile				= new File(completeOutputPath);
-	// 		if (outFile) {
-	// 			outFile.open("w", "IMAGE", "????");
-	// 			outFile.write(currentProjPanelDisplay);
-	// 			$._PPP_.updateEventPanel("Saved layout to next to the project.");
-	// 			outFile.close();
-	// 		}
-	// 	}
-	//
-	// 	const bin = $._PPP_.searchForBinWithName("card-images");
-	// 	if (bin === null){
-	// 		app.project.rootItem.createBin('card-images');
-	// 	}
-	// 	app.project.importFiles([file_path],
-	// 		true,
-	// 		bin,
-	// 	true);
-	// }
 };

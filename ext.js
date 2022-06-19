@@ -256,34 +256,35 @@ function onClickButton(ppid) {
 }
 
 
-
-function myUserNameFunction2 (data) {
-	// Updates username with whatever ExtendScript function returns.
-	console.log(data)
-}
-
 function downloadAndImport(url, fileName) {
 	const csInterface = new CSInterface();
 	// call the evalScript we made in the jsx file
-	csInterface.evalScript("$._PPP_.getUserName()", myUserNameFunction2);
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
 		const https = require('https');
 		const fs = require('fs');
-		console.log(result)
+
 		// create a Downloads directory in the project path if it doesn't exist already
 		const downloadDirectory = result + '/Downloads';
 		fs.mkdir(downloadDirectory, { recursive: true }, (err) => {})
-		//csInterface.evalScript('$._PPP_.chProjectPath(' + downloadDirectory +')');
 
 		const fullPath = downloadDirectory + "/" + fileName;
-		const file = fs.createWriteStream(fullPath);
-		const request = https.get(url, function(response) {
-			response.pipe(file);
-			// ensure file is complete before importing
-			response.on('end', function() {
-				csInterface.evalScript("app.project.importFiles(['" + fullPath + "'])");
-			});
+		fs.stat(fullPath, function(err, stat) {
+			if(err == null) {
+				console.log("Import: " + fullPath)
+				// First we need to check if it already exists
+				//csInterface.evalScript("$._PPP_.chImportFile('" + fullPath + "')");
+			} else if(err.code === 'ENOENT') {
+				const file = fs.createWriteStream(fullPath);
+				const request = https.get(url, function(response) {
+					response.pipe(file);
+					// ensure file is complete before importing
+					response.on('end', function() {
+						console.log("Download: " + fullPath)
+						csInterface.evalScript("$._PPP_.chImportFile('" + fullPath + "')");
+					});
 
+				});
+			}
 		});
 	})
 }
