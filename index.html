@@ -240,13 +240,15 @@
 				}
 			})
 			.on("focusout", function(){
-				setTimeout(function() {
-					show_list("-", false)
-					if (selected_index !== -1) {
-						selected_index = -1;
-						set_active(selected_index)
-					}
-				}, 150)
+				if (document.hasFocus()) {
+					setTimeout(function() {
+						show_list("-", false)
+						if (selected_index !== -1) {
+							selected_index = -1;
+							set_active(selected_index)
+						}
+					}, 150)
+				}
 			});
 
 			$myInput.onkeydown = function(event){
