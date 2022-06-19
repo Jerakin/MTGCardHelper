@@ -35,7 +35,31 @@
 			let latest_data = {}
 			let active_list_type = ""
 
-			function show_set_card_images(uri){
+			function update_card_list () {
+				if ($myInput.value.length >= 3) {
+					show_list("card-list-result", true)
+					active_list_type = "card-list-result"
+					$("#card-list-result").empty()
+					const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
+					get_call.done(function (data) {
+						console.log("https://api.scryfall.com/cards/search?q=" + $myInput.value)
+						latest_data = data;
+						$.each(data["data"], function (index, element) {
+							const list_element = `
+<div class='d-flex justify-content-between list-group-item list-group-item-action'>
+	<a class='mtg-card text-decoration-none text-dark align-self-start w-100 d-block' href='#'>${element["name"]}</a>
+	<img class="mtg-card img-fluid h-100" src="assets/files.png" alt="SET" data-print-search-uri="${element["prints_search_uri"]}">
+</div>
+`
+							$("#card-list-result").append(list_element)
+						});
+					});
+				} else {
+					show_list("-", false)
+				}
+			}
+
+			function update_image_view(uri){
 				const get_call = $.get(uri);
 				get_call.done(function (data) {
 					$.each(data["data"], function (index, element) {
@@ -73,6 +97,7 @@
 				}
 			}
 
+			// List entry click
 			$(document).on("click", "a.mtg-card", function(event){
 				if (latest_data){
 					const $scale = document.getElementById('scale');
@@ -93,7 +118,7 @@
 				active_list_type = "card-image-result"
 				const this_uri = jQuery(this).data("print-search-uri");
 				console.log(this_uri)
-				show_set_card_images(this_uri);
+				update_image_view(this_uri);
 			});
 
 			// Big cards
@@ -105,6 +130,7 @@
 				downloadAndImport(url, card_name + ".png", ($scale.value || 100), true)
 			});
 
+			// Dropdown list navigation visualiser
 			const set_active = function(index){
 				const children = $('#card-list-result').children();
 				for (var i = 0; i < children.length; i++) {
@@ -115,16 +141,6 @@
 					}
 				}
 			}
-
-			// // Not working
-			// $(document).on('mouseover', 'a', function(event) {
-			// 	console.log(jQuery(this).text())
-			// 	jQuery(this).addClass("active");
-			// });
-			// $(document).on('mouseout', 'a', function(event) {
-			// 	console.log(jQuery(this).text())
-			// 	jQuery(this).removeClass("active");
-			// });
 
 			$('#card-search').on("focus", function(){
 				if ($('#card-list-result').children().length !== 0) {
@@ -178,35 +194,10 @@
 				$myInput.onkeyup = function(event) {
 					if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter') {} else {
 						clearTimeout(typing_timer);
-						typing_timer = setTimeout(update_list, 200);
-					}
-				}
-
-				function update_list () {
-					if ($myInput.value.length >= 3) {
-						show_list("card-list-result", true)
-						active_list_type = "card-list-result"
-						$("#card-list-result").empty()
-						const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
-						get_call.done(function (data) {
-							console.log("https://api.scryfall.com/cards/search?q=" + $myInput.value)
-							latest_data = data;
-							$.each(data["data"], function (index, element) {
-								const list_element = `
-<div class='d-flex justify-content-between list-group-item list-group-item-action'>
-	<a class='mtg-card text-decoration-none text-dark align-self-start w-100 d-block' href='#'>${element["name"]}</a>
-	<img class="mtg-card img-fluid h-100" src="assets/files.png" alt="SET" data-print-search-uri="${element["prints_search_uri"]}">
-</div>
-`
-								$("#card-list-result").append(list_element)
-							});
-						});
-					} else {
-						show_list("-", false)
+						typing_timer = setTimeout(update_card_list, 200);
 					}
 				}
 			}
-
 		});
 	</script>
 </head>
