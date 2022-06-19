@@ -33,6 +33,7 @@
 			let typing_timer;
 			let selected_index = -1;
 			let latest_data = {}
+			let active_list_type = ""
 
 			function show_set_card_images(uri){
 				const get_call = $.get(uri);
@@ -40,12 +41,36 @@
 					$.each(data["data"], function (index, element) {
 						const list_element = `
 
-	<img class="card-img w-25 mr-auto" src="${element["image_uris"]["small"]}" alt="SET" data-card-uri="${element["image_uris"]["png"]}" data-card-name="${element["name"]}">
+	<img class="set-card-img col" src="${element["image_uris"]["small"]}" alt="SET" data-card-uri="${element["image_uris"]["png"]}" data-card-name="${element["name"]}">
 
 `
-						$("#card-result").append(list_element)
+						$("#card-image-result").append(list_element)
 					});
 				});
+			}
+
+			function show_list(name, toggle) {
+				if (name === "card-list-result"){
+					if (toggle) {
+						$("#card-list-result").removeClass("visually-hidden");
+						$("#card-image-result").addClass("visually-hidden");
+						$("#parent-result").removeClass("visually-hidden");
+						$("#properties").addClass("visually-hidden");
+					}
+				} else {
+					if (toggle) {
+						$("#card-image-result").removeClass("visually-hidden");
+						$("#card-list-result").addClass("visually-hidden");
+						$("#parent-result").removeClass("visually-hidden");
+						$("#properties").addClass("visually-hidden");
+					}
+				}
+				if (!toggle) {
+					$("#card-list-result").addClass("visually-hidden");
+					$("#card-image-result").addClass("visually-hidden");
+					$("#parent-result").addClass("visually-hidden");
+					$("#properties").removeClass("visually-hidden");
+				}
 			}
 
 			$(document).on("click", "a.mtg-card", function(event){
@@ -61,15 +86,19 @@
 				}
 			});
 
+			// Button to find all sets
 			$(document).on("click", "img.mtg-card", function(event){
-				$("#search-result").empty().addClass("visually-hidden");
-				$("#card-result").empty().removeClass("visually-hidden");
-
+				show_list("card-image-result", true)
+				$("#card-image-result").empty()
+				active_list_type = "card-image-result"
 				const this_uri = jQuery(this).data("print-search-uri");
+				console.log(this_uri)
 				show_set_card_images(this_uri);
 			});
 
-			$(document).on("click", "img.card-img", function(event){
+			// Big cards
+			$(document).on("click", "img.set-card-img", function(event){
+				active_list_type = "card-image-result"
 				const $scale = document.getElementById('scale');
 				const url = jQuery(this).data("card-uri");
 				const card_name = jQuery(this).data("card-name");
@@ -77,7 +106,7 @@
 			});
 
 			const set_active = function(index){
-				const children = $('#search-result').children();
+				const children = $('#card-list-result').children();
 				for (var i = 0; i < children.length; i++) {
 					const child = $(children[i]);
 					child.removeClass("active");
@@ -98,14 +127,17 @@
 			// });
 
 			$('#card-search').on("focus", function(){
-				$("#card-result").empty().addClass("visually-hidden");
-				if ($('#search-result').children().length !== 0) {
-					$("#search-result").removeClass("visually-hidden");
+				if ($('#card-list-result').children().length !== 0) {
+					if (active_list_type) {
+						show_list(active_list_type, true)
+					} else {
+						show_list("-", false)
+					}
 				}
 			})
 			.on("focusout", function(){
+				// show_list("-", false)
 				setTimeout(function() {
-					$("#search-result").addClass("visually-hidden");
 					if (selected_index !== -1) {
 						selected_index = -1;
 						set_active(selected_index)
@@ -121,7 +153,7 @@
 				}
 				else if (event.key === 'ArrowDown') {
 					event.preventDefault();
-					const num_children = $('#search-result').children().length
+					const num_children = $('#card-list-result').children().length
 					selected_index = Math.min(selected_index+1, num_children-1);
 					set_active(selected_index)
 				}
@@ -152,7 +184,9 @@
 
 				function update_list () {
 					if ($myInput.value.length >= 3) {
-						$("#search-result").empty().removeClass("visually-hidden")
+						show_list("card-list-result", true)
+						active_list_type = "card-list-result"
+						$("#card-list-result").empty()
 						const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
 						get_call.done(function (data) {
 							console.log("https://api.scryfall.com/cards/search?q=" + $myInput.value)
@@ -164,11 +198,11 @@
 	<img class="mtg-card img-fluid h-100" src="assets/files.png" alt="SET" data-print-search-uri="${element["prints_search_uri"]}">
 </div>
 `
-								$("#search-result").append(list_element)
+								$("#card-list-result").append(list_element)
 							});
 						});
 					} else {
-						$("#search-result").empty().addClass("visually-hidden");
+						show_list("-", false)
 					}
 				}
 			}
@@ -178,30 +212,27 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100" onLoad="onLoaded()">
-	<div class="container">
-		<header class="m-2">
+	<div class="container d-flex flex-column">
+		<header class="p-2 m-2">
 			<a class="text-decoration-none text-dark h1" href="javascript:history.go(0)">
 				MTG Card Helper
 			</a>
 		</header>
-		<div class="form-group w-100">
+		<div class="p-2 form-group w-100">
 			<label class="form-label" for="card-search">Search</label>
 			<input class="form-control" type="text" id="card-search" name="card-search">
 		</div>
-		<div class="h-100 w-100">
-			<div class="list-group result-list overflow-scroll h-100 position-fixed d-flex">
-				<div id="search-result" class="result-sub-list visually-hidden"></div>
-				<div id="card-result" class="result-sub-list d-flex visually-hidden flex-wrap align-content-center"></div>
-			</div>
-
-			<div class="m-2">
-				<label for="scale" class="visually-hidden">Scale</label>
-				<div class="input-group mb-2 mr-sm-2">
-					<div class="input-group-prepend">
-						<div class="input-group-text">Scale</div>
-					</div>
-					<input type="text" class="form-control" id="scale" placeholder="100">
+		<div id="parent-result" class="p-2 result-list visually-hidden">
+			<div id="card-list-result" class="list-group visually-hidden overflow-auto w-100 h-100"></div>
+			<div id="card-image-result" class="visually-hidden overflow-auto w-100 h-100 row row-cols-3"></div>
+		</div>
+		<div class="p-2" id="properties">
+			<label for="scale" class="visually-hidden">Scale</label>
+			<div class="input-group mb-2 mr-sm-2">
+				<div class="input-group-prepend">
+					<div class="input-group-text">Scale</div>
 				</div>
+				<input type="text" class="form-control" id="scale" placeholder="100">
 			</div>
 		</div>
 		<footer class="fixed-bottom">

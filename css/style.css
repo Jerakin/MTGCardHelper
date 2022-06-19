@@ -13,12 +13,6 @@
 **************************************************************************/
 
 .result-list {
-    /*max-height: 250px !important;*/
-    overflow-x:hidden !important;
-    z-index: 1070;
-    width:inherit !important;
-    pointer-events: none;
-}
-.result-sub-list {
-    pointer-events: auto;
+    height: calc(100vh - (51px + 86px + 24px + 30px));
+    width: calc(100vw - 35px);
 }
