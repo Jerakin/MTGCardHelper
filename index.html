@@ -37,15 +37,18 @@
 			console.log("[DEBUG] : " + "Extension Start")
 			function get_property_group(track){
 				return`
-<div class="p-2 border-start border-1 border-dark ${track % 2 ? "border-opacity-10" : "border-opacity-25" }" id="properties-${track}">
-	<label for="track" class="d-none">Track</label>
-	<div class="input-group mb-2 mr-sm-2">
-		<div class="input-group-prepend">
-			<div class="input-group-text">Track</div>
+<div class="p-2 border-start border-1 border-dark ${track % 2 ? "border-opacity-10" : "border-opacity-25" }" id="properties-${track}" data-id="${track}">
+	<label for="track-${track}" class="d-none">Track</label>
+	<div class="row">
+		<div class="input-group mb-2 mr-sm-2 col">
+			<div class="input-group-prepend">
+				<div class="input-group-text">Track</div>
+			</div>
+			<input type="number" class="form-control" id="track-${track}">
 		</div>
-		<input type="number" class="form-control" id="track-${track}">
+		<button class="close-setting btn btn-close col-1" data-id="properties-${track}"></button>
 	</div>
-	<label for="scale" class="d-none">Scale</label>
+	<label for="scale-${track}" class="d-none">Scale</label>
 	<div class="input-group mb-2 mr-sm-2">
 		<div class="input-group-prepend">
 			<div class="input-group-text">Scale</div>
@@ -54,14 +57,14 @@
 	</div>
 
 	<div class="row">
-		<label for="pos-x" class="d-none">PosX</label>
+		<label for="pos-x-${track}" class="d-none">PosX</label>
 		<div class="input-group mb-2 mr-sm-2 col">
 			<div class="input-group-prepend">
 				<div class="input-group-text">Pos X</div>
 			</div>
 			<input type="text" class="form-control" id="pos-x-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
 		</div>
-		<label for="pos-x" class="d-none">PosY</label>
+		<label for="pos-x-${track}" class="d-none">PosY</label>
 		<div class="input-group mb-2 mr-sm-2 col">
 			<div class="input-group-prepend">
 				<div class="input-group-text">Pos Y</div>
@@ -138,13 +141,16 @@
 				let prop = []
 				console.log("[DEBUG] : " + "Start Collection")
 				const p_group = $("#properties-group");
-				for (var i = 0; i < p_group.children().length; i++) {
-					console.log("[DEBUG] : " + "Collect Track Properties: " + i)
+				const children = p_group.children();
+				for (var i = 0; i < children.length; i++) {
+					const properties_id = jQuery(children[i]).data("id");
+					console.log("[DEBUG] : " + "Collect Track Properties: " + properties_id)
+
 					let p = {}
-					p.scale = document.getElementById('scale-'+ i).value;
-					p.track = document.getElementById('track-'+ i).value;
-					p.x = document.getElementById('pos-x-'+ i).value;
-					p.y = document.getElementById('pos-y-'+ i).value;
+					p.scale = document.getElementById('scale-'+ properties_id).value;
+					p.track = document.getElementById('track-'+ properties_id).value;
+					p.x = document.getElementById('pos-x-'+ properties_id).value;
+					p.y = document.getElementById('pos-y-'+ properties_id).value;
 
 					p.scale = p.scale && parseFloat(p.scale)
 					p.track = p.track && parseInt(p.track)
@@ -156,9 +162,15 @@
 			}
 
 			// Add Track Setting
-			$(document).on("click", "button", function(event){
+			$(document).on("click", "#add-track-setting", function(event){
 				const p_group = $("#properties-group");
-				p_group.append(get_property_group(p_group.children().length));
+				p_group.append(get_property_group(Date.now()));
+			});
+
+			// Remove Track Setting
+			$(document).on("click", "button.close-setting", function(event){
+				const properties_id = jQuery(this).data("id");
+				$("#"+properties_id).remove();
 			});
 
 			// List entry click
@@ -291,7 +303,7 @@
 			<div>Created by <a href="https://github.com/Jerakin" target="_blank">Jerakin</a>
 				| Powered by <a href="https://www.scryfall.com/" target="_">Scryfall</a></div>
 		</footer>
-		<button class="btn btn-primary w-75 shadow-none m-auto">Add Track Setting</button>
+		<button id="add-track-setting" class="btn btn-primary w-75 shadow-none m-auto">Add Track Setting</button>
 	</div>
 </body>
 <script>
