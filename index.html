@@ -100,7 +100,7 @@
 						if (selected_index === -1) {
 							const element = latest_data["data"][0]
 							const url = element["image_uris"]["png"];
-							downloadAndImport(url, name + ".png", ($scale.value || 100))
+							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100))
 						} else {
 							const element = latest_data["data"][selected_index]
 							const url = element["image_uris"]["png"];
