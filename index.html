@@ -36,41 +36,48 @@
 			let active_list_type = ""
 			console.log("[DEBUG] : " + "Extension Start")
 
-			function get_property_group(track){
+			importSettingsJson(function(data){
+				const p_group = $("#properties-group");
+				$.each(data, function(index, element){
+					p_group.append(get_property_group(Date.now(), element.track, element.scale, element.x, element.y));
+				})
+			});
+
+			function get_property_group(id, track, scale, x, y){
 				return`
-<div class="p-2 border-start border-1 border-dark ${track % 2 ? "border-opacity-10" : "border-opacity-25" }" id="properties-${track}" data-id="${track}">
-	<label for="track-${track}" class="d-none">Track</label>
+<div class="p-2 border-start border-1 border-dark border-opacity-10" id="properties-${id}" data-id="${id}">
+	<label for="track-${id}" class="d-none">Track</label>
 	<div class="row">
 		<div class="input-group mb-2 mr-sm-2 col">
 			<div class="input-group-prepend">
 				<div class="input-group-text">Track</div>
 			</div>
-			<input type="number" class="form-control" id="track-${track}">
+			<input type="number" class="form-control" id="track-${id}" value="${track}">
 		</div>
-		<button class="close-setting btn btn-close col-1" data-id="properties-${track}"></button>
+		<button class="close-setting btn btn-close col-1" data-id="properties-${id}"></button>
 	</div>
-	<label for="scale-${track}" class="d-none">Scale</label>
+	<label for="scale-${id}" class="d-none">Scale</label>
 	<div class="input-group mb-2 mr-sm-2">
 		<div class="input-group-prepend">
 			<div class="input-group-text">Scale</div>
 		</div>
-		<input type="text" class="form-control" id="scale-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="100.0">
+		<input type="text" class="form-control" id="scale-${id}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="${scale}">
 	</div>
 
 	<div class="row">
-		<label for="pos-x-${track}" class="d-none">PosX</label>
+		<label for="pos-x-${id}" class="d-none">PosX</label>
 		<div class="input-group mb-2 mr-sm-2 col">
 			<div class="input-group-prepend">
 				<div class="input-group-text">Pos X</div>
 			</div>
-			<input type="text" class="form-control" id="pos-x-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="640">
+			<input type="text" class="form-control" id="pos-x-${id}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="${x}">
 		</div>
-		<label for="pos-x-${track}" class="d-none">PosY</label>
+		<label for="pos-x-${id}" class="d-none">PosY</label>
 		<div class="input-group mb-2 mr-sm-2 col">
 			<div class="input-group-prepend">
 				<div class="input-group-text">Pos Y</div>
 			</div>
-			<input type="text" class="form-control" id="pos-y-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="360">
+			<input type="text" class="form-control" id="pos-y-${id}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="${y}">
 		</div>
 	</div>
 </div>
@@ -168,7 +175,7 @@
 			// Add Track Setting
 			$(document).on("click", "#add-track-setting", function(event){
 				const p_group = $("#properties-group");
-				p_group.append(get_property_group(Date.now()));
+				p_group.append(get_property_group(Date.now(), "", 100, 640, 360));
 			});
 
 			// Remove Track Setting
@@ -311,4 +318,34 @@
 		<button id="add-track-setting" class="btn btn-primary w-75 shadow-none m-auto">Add Track Setting</button>
 	</div>
 </body>
+<script>
+	document.body.onbeforeunload = function () {
+		function collect_track_properties(){
+			let prop = []
+			console.log("[DEBUG] : " + "Start Collection")
+			const p_group = $("#properties-group");
+			const children = p_group.children();
+			for (var i = 0; i < children.length; i++) {
+				const properties_id = jQuery(children[i]).data("id");
+				console.log("[DEBUG] : " + "Collect Track Properties: " + properties_id)
+
+				let p = {}
+				p.scale = document.getElementById('scale-'+ properties_id).value;
+				p.track = document.getElementById('track-'+ properties_id).value;
+				p.x = document.getElementById('pos-x-'+ properties_id).value;
+				p.y = document.getElementById('pos-y-'+ properties_id).value;
+
+				p.scale = p.scale && parseFloat(p.scale)
+				p.track = p.track && parseInt(p.track)
+				p.x = p.x && parseFloat(p.x)
+				p.y = p.y && parseFloat(p.y)
+				prop.push(p)
+			}
+			return prop
+		}
+		const track_data = collect_track_properties()
+		exportSettingsJson(track_data)
+	};
+</script>
+
 </html>

@@ -85,6 +85,29 @@ function loadJSX() {
 	CSInterface.prototype.registerKeyEventsInterest(JSON.stringify(keyEventsInterest));
 }
 
+function exportSettingsJson(data) {
+	const csInterface = new CSInterface();
+
+	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
+		const fs = require('fs');
+		const fullPath = result + '/mtgdeckhelper.json';
+		console.log("[DEBUG] : " + "Export: " + fullPath)
+
+		fs.writeFileSync(fullPath, JSON.stringify(data));
+	})
+
+}
+
+function importSettingsJson(fn) {
+	const csInterface = new CSInterface();
+	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
+		const fs = require('fs');
+		const fullPath = result + '/mtgdeckhelper.json';
+		console.log("[DEBUG] : " + "Import: " + fullPath)
+		const data = fs.readFileSync(fullPath, {encoding:"utf-8"});
+		fn(JSON.parse(data));
+	})
+}
 
 function downloadAndImport(args) {
 	console.log("[DEBUG] : " + "Import: " + args.url)
