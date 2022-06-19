@@ -25,17 +25,6 @@
 	<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript">
 		$(document).ready(function () {
-			const csInterface = new CSInterface();
-
-			function runEvalScript(script) {
-				return new Promise(function(resolve, reject){
-					csInterface.evalScript(script, resolve);
-				});
-			}
-
-			// For functions which require interaction at the JavaScript level, we provide these JQuery-based
-			// handlers, instead of directly invoking ExtendScript .This gives the JavaScript layer a chance
-			// to pass data into the ExtendScript layer, and process the results.
 			const $myInput = document.getElementById('card-search');
 			let since_last_request = Date.now();
 			console.log("Started")
@@ -73,15 +62,15 @@
 </head>
 
 <body onLoad="onLoaded()">
-<a href="javascript:history.go(0)">Refresh panel</a>
-<p id="username">[uninitialized]</p>
-<p id="version_string">[uninitialized]</p>
-<p id="active_seq">[uninitialized]</p>
-<p id="proxies_on">Proxies enabled for sequence: </p>
-<div id="dragthing" draggable="true" ondragstart="dragHandler(event)"></div>
-<label for="card-search">Search</label>
-<input type="text" id="card-search" name="card-search">
-<div id="search-result"></div>
+<header>
+	<a href="javascript:history.go(0)">Refresh panel</a>
+</header>
+<div class="content">
+	<div id="dragthing" draggable="true" ondragstart="dragHandler(event)"></div>
+	<label for="card-search">Search</label>
+	<input type="text" id="card-search" name="card-search">
+	<div id="search-result"></div>
+</div>
 </body>
 <script>
 	document.body.onbeforeunload = function () {
