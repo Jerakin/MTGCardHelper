@@ -51,3 +51,5 @@ input[type=text]
 #content ul li {
 	margin:3px 0px 3px 0px;
 }
+
+.stay-open {display:block !important;}

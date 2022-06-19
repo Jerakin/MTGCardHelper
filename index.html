@@ -22,7 +22,8 @@
 	<script src="./lib/CSInterface.js"></script>
 	<script src="./lib/jquery-1.9.1.js"></script>
 	<script src="./lib/Vulcan.js"></script>
-	<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
+	<script src="./lib/bootstrap.js"></script>
+	<link id="bootstap" href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript">
 		$(document).ready(function () {
 			const $myInput = document.getElementById('card-search');
@@ -44,11 +45,11 @@
 					}
 					else {
 						if(Date.now() - since_last_request > 75) {
-							$("div#search-result").empty()
+							$("#search-result").empty()
 							const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
 							get_call.done(function(data) {
 								$.each(data["data"], function(index, element){
-									$("#search-result").append("<a>" + element["name"] + "</a><br> ")
+									$("#search-result").append("<a class='dropdown-item'>" + element["name"] + "</a>")
 								});
 								since_last_request = Date.now();
 							});
@@ -62,15 +63,37 @@
 </head>
 
 <body onLoad="onLoaded()">
-<header>
-	<a href="javascript:history.go(0)">Refresh panel</a>
-</header>
-<div class="content">
-	<div id="dragthing" draggable="true" ondragstart="dragHandler(event)"></div>
-	<label for="card-search">Search</label>
-	<input type="text" id="card-search" name="card-search">
-	<div id="search-result"></div>
-</div>
+	<div class="container">
+		<header class="navbar align-items-center">
+			<a href="javascript:history.go(0)">
+				MTG Card Helper
+			</a>
+		</header>
+		<div class="form-group">
+			<label class="form-label" for="card-search">Search</label>
+			<input class="form-control" type="text" id="card-search" name="card-search">
+			<div id="search-result" ></div>
+		</div>
+
+		<label>Scale</label>
+		<div class="d-inline">
+			<label for="scale-x" class="visually-hidden">X</label>
+			<div class="input-group mb-2 mr-sm-2">
+				<div class="input-group-prepend">
+					<div class="input-group-text">X</div>
+				</div>
+				<input type="text" class="form-control" id="scale-x" placeholder="100">
+			</div>
+			<label for="scale-y" class="visually-hidden">X</label>
+			<div class="input-group mb-2 mr-sm-2">
+				<div class="input-group-prepend">
+					<div class="input-group-text">Y</div>
+				</div>
+				<input type="text" class="form-control" id="scale-y" placeholder="100">
+			</div>
+		</div>
+	</div>
+
 </body>
 <script>
 	document.body.onbeforeunload = function () {
