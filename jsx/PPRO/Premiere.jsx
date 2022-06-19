@@ -11,6 +11,7 @@
 * then your use, modification, or distribution of it requires the prior
 * written permission of Adobe.
 **************************************************************************/
+//@include 'jsx/json2.js';
 
 // time display types
 
