@@ -35,6 +35,7 @@
 			let latest_data = {}
 			let active_list_type = ""
 			console.log("[DEBUG] : " + "Extension Start")
+
 			function get_property_group(track){
 				return`
 <div class="p-2 border-start border-1 border-dark ${track % 2 ? "border-opacity-10" : "border-opacity-25" }" id="properties-${track}" data-id="${track}">
@@ -62,14 +63,14 @@
 			<div class="input-group-prepend">
 				<div class="input-group-text">Pos X</div>
 			</div>
-			<input type="text" class="form-control" id="pos-x-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
+			<input type="text" class="form-control" id="pos-x-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="640">
 		</div>
 		<label for="pos-x-${track}" class="d-none">PosY</label>
 		<div class="input-group mb-2 mr-sm-2 col">
 			<div class="input-group-prepend">
 				<div class="input-group-text">Pos Y</div>
 			</div>
-			<input type="text" class="form-control" id="pos-y-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
+			<input type="text" class="form-control" id="pos-y-${track}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="360">
 		</div>
 	</div>
 </div>

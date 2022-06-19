@@ -5,6 +5,13 @@ $._PPP_={
 		app.setExtensionPersistent("com.jerakin.mtgcardhelper", 0); // 0, while testing (to enable rapid reload); 1 for "Never unload me, even when not visible."
 	},
 
+	updateEventPanel : function (message) {
+		app.setSDKEventMessage(message, 'info');
+		/*app.setSDKEventMessage('Here is some information.', 'info');
+		app.setSDKEventMessage('Here is a warning.', 'warning');
+		app.setSDKEventMessage('Here is an error.', 'error');  // Very annoying; use sparingly.*/
+	},
+
 	searchForBinWithName : function (nameToFind) {
 		// deep-search a folder by name in project
 		var deepSearchBin = function (inFolder) {
@@ -111,6 +118,11 @@ $._PPP_={
 		return false;
 	},
 
+	chGetActiveSequenceFrameSize : function() {
+		var settings = app.project.activeSequence.getSettings()
+		return [settings.videoFrameWidth, settings.videoFrameHeight]
+	},
+
 	// This is using the localised displayName - I bet that will be an issue in the future
 	chTrackItemChangeProperty : function(track_item, component_name, properties_name, value) {
 		for (var i = 0; i < track_item.components.numItems; i++) {
@@ -158,7 +170,10 @@ $._PPP_={
 				}
 				if (properties) {
 					$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Scale", properties.scale)
-					$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Position", [properties.x, properties.y])
+					const size = $._PPP_.chGetActiveSequenceFrameSize()
+					const x = properties.x / size[0]
+					const y = properties.y / size[1]
+					$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Position", [x, y])
 				} else {
 					$._PPP_.updateEventPanel("No properties for track: " + track.id);
 				}

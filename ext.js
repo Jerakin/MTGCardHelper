@@ -6,25 +6,8 @@ function onLoaded () {
 
 	loadJSX();
 
-	// Listen for event sent in response to rendering a sequence.
-	csInterface.addEventListener("com.adobe.csxs.events.PProPanelRenderEvent", function(event) {
-		alert(event.data);
-	});
-
-	csInterface.addEventListener("ApplicationBeforeQuit", function(event) {
-		csInterface.evalScript("$._PPP_.closeLog()");
-	});
-
 	csInterface.evalScript("$._PPP_.keepPanelLoaded()");
-	csInterface.evalScript("$._PPP_.forceLogfilesOn()");  // turn on log files when launching
 
-	// Good idea from our friends at Evolphin; make the ExtendScript locale match the JavaScript locale!
-	var prefix		= "$._PPP_.setLocale('";
-	var locale	 	= csInterface.hostEnvironment.appUILocale;
-	var postfix		= "');";
-
-	var entireCallWithParams = prefix + locale + postfix;
-	csInterface.evalScript(entireCallWithParams);
 }
 
 /**
@@ -101,6 +84,7 @@ function loadJSX() {
 	]
 	CSInterface.prototype.registerKeyEventsInterest(JSON.stringify(keyEventsInterest));
 }
+
 
 function downloadAndImport(args) {
 	console.log("[DEBUG] : " + "Import: " + args.url)
