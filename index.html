@@ -1,0 +1,118 @@
+<!doctype html>
+<!--
+/*************************************************************************
+* ADOBE CONFIDENTIAL
+* ___________________
+*
+* Copyright 2020 Adobe
+* All Rights Reserved.
+*
+* NOTICE: Adobe permits you to use, modify, and distribute this file in
+* accordance with the terms of the Adobe license agreement accompanying
+* it. If you have received this file from a source other than Adobe,
+* then your use, modification, or distribution of it requires the prior
+* written permission of Adobe. 
+**************************************************************************/
+-->
+<html>
+<title>PProPanel</title>
+<head>
+	<meta charset="utf-8">
+	<script src="./ext.js"></script>
+	<script src="./lib/CSInterface.js"></script>
+	<script src="./lib/jquery-1.9.1.js"></script>
+	<script src="./lib/Vulcan.js"></script>
+	<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript">
+		$(document).ready(function () {
+			const csInterface = new CSInterface();
+
+			function runEvalScript(script) {
+				return new Promise(function(resolve, reject){
+					csInterface.evalScript(script, resolve);
+				});
+			}
+
+			// For functions which require interaction at the JavaScript level, we provide these JQuery-based
+			// handlers, instead of directly invoking ExtendScript .This gives the JavaScript layer a chance
+			// to pass data into the ExtendScript layer, and process the results.
+			const $myInput = document.getElementById('card-search');
+			let since_last_request = Date.now();
+			console.log("Started")
+			$myInput.onkeydown = function(event){
+				if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+					// TODO: This should select an option in our dropdown
+				}
+				else if ($myInput.value.length >= 3) {
+					if (event.key === 'Enter') {
+						// TODO: This should use the dropdown
+
+						const pre = '$._PPP_.chImportFile('
+						let path = ""
+						const post = ')'
+
+						const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
+						get_call.done(function(data) {
+							const url = data["data"][0]["image_uris"]["png"];
+							const name = data["data"][0]["name"];
+							downloadAndImport(url, name + ".png")
+						});
+
+						const whole_megillah = pre + path + post;
+
+						csInterface.evalScript(whole_megillah);
+					}
+					else {
+						console.log("Searched: " + $myInput.value)
+						if(Date.now() - since_last_request > 75) {
+							$("div#search-result").empty()
+
+							const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
+							get_call.done(function(data) {
+								$.each(data["data"], function(index, element){
+									console.log("Found: [" + index + "] | " + element["name"])
+									$("#search-result").append("<a>" + element["name"] + "</a><br> ")
+								});
+								since_last_request = Date.now();
+							});
+						}
+					}
+				}
+			}
+
+		});
+	</script>
+</head>
+
+<body onLoad="onLoaded()">
+<div id="content">
+	<a href="javascript:history.go(0)">Refresh panel</a>
+	<p id="username">[uninitialized]</p>
+	<p id="version_string">[uninitialized]</p>
+	<p id="active_seq">[uninitialized]</p>
+	<p id="proxies_on">Proxies enabled for sequence: </p>
+	<label for="card-search">Search</label>
+	<input type="text" id="card-search" name="card-search">
+	<div id="search-result"></div>
+</div>
+</body>
+<script>
+	document.body.onbeforeunload = function () {
+		var csInterface 	= new CSInterface();
+		var OSVersion 		= csInterface.getOSInformation();
+		var appVersion 		= csInterface.hostEnvironment.appVersion;
+		var versionAsFloat	= parseFloat(appVersion);
+		
+		csInterface.evalScript('$._PPP_.closeLog()');
+
+		if (versionAsFloat < 10.3) {
+			var path = "file:///Library/Application Support/Adobe/CEP/extensions/PProPanel/payloads/onbeforeunload.html";
+
+			if (OSVersion.indexOf("Windows") >= 0) {
+				path = "file:///C:/Program%20Files%20(x86)/Common%20Files/Adobe/CEP/extensions/PProPanel/payloads/onbeforeunload.html"
+			}
+			csInterface.openURLInDefaultBrowser(path);
+		}
+	};
+</script>
+</html>
