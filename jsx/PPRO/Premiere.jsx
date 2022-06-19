@@ -2114,11 +2114,8 @@ $._PPP_={
 		app.enableQE();
 		var previousLogFilesValue = qe.getDebugDatabaseEntry("CreateLogFilesThatDoNotExist");
 
-		if (previousLogFilesValue === 'true') {
-			$._PPP_.updateEventPanel("Force create Log files was already ON.");
-		} else {
+		if (previousLogFilesValue !== 'true') {
 			qe.setDebugDatabaseEntry("CreateLogFilesThatDoNotExist", "true");
-			$._PPP_.updateEventPanel("Set Force create Log files to ON.");
 		}
 	},
 
@@ -2588,7 +2585,6 @@ $._PPP_={
 
 	setLocale : function (localeFromCEP) {
 		$.locale = localeFromCEP;
-		$._PPP_.updateEventPanel("ExtendScript Locale set to " + localeFromCEP + ".");
 	},
 
 	disableTranscodeOnIngest : function(newValue) {

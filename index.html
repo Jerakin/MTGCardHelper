@@ -31,21 +31,37 @@
 		$(document).ready(function () {
 			const $myInput = document.getElementById('card-search');
 			let since_last_request = Date.now();
-			let selected_index = 0;
+			let selected_index = -1;
 			let latest_data = {}
 			$(document).on("click", "a.mtg-card", function(event){
+				const $scale = document.getElementById('scale');
 				if (latest_data){
-					const this_name = jQuery(this).text();
-					$.each(latest_data["data"], function(index, element){
-						if (element["name"] === this_name) {
-							const $scale = document.getElementById('scale');
-							const url = element["image_uris"]["png"];
-							downloadAndImport(url, this_name + ".png", ($scale.value || 100))
-						}
-					});
+					if (selected_index === -1){
+						const this_name = jQuery(this).text();
+						$.each(latest_data["data"], function(index, element){
+							if (element["name"] === this_name) {
+								const url = element["image_uris"]["png"];
+								downloadAndImport(url, this_name + ".png", ($scale.value || 100))
+							}
+						});
+					} else {
+						const element = latest_data["data"][selected_index]
+						const url = element["image_uris"]["png"];
+						downloadAndImport(url, element["name"] + ".png", ($scale.value || 100))
+					}
 				}
 			});
 
+			const set_active = function(index){
+				const children = $('#search-result').children();
+				for (var i = 0; i < children.length; i++) {
+					const child = $(children[i]);
+					child.removeClass("active");
+					if (i === index) {
+						child.addClass("active");
+					}
+				}
+			}
 
 			// // Not working
 			// $(document).on('mouseover', 'a', function(event) {
@@ -59,23 +75,30 @@
 
 			$('#card-search').on("focus", function(){
 				if ($('#search-result').children().length > 0) {
-					$("#search-result").removeClass("visually-hidden")
+					$("#search-result").removeClass("visually-hidden");
 				}
 			})
 			.on("focusout", function(){
 				setTimeout(function() {
-					$("#search-result").addClass("visually-hidden")
+					$("#search-result").addClass("visually-hidden");
+					if (selected_index !== -1) {
+						selected_index = -1;
+						set_active(selected_index)
+					}
 				}, 100)
 			});
 
 			$myInput.onkeydown = function(event){
 				if (event.key === 'ArrowUp') {
 					event.preventDefault();
-					selected_index -= 1;
+					selected_index = Math.max(selected_index-1, -1);
+					set_active(selected_index)
 				}
 				else if (event.key === 'ArrowDown') {
 					event.preventDefault();
-					selected_index += 1;
+					const num_children = $('#search-result').children().length
+					selected_index = Math.min(selected_index+1, num_children);
+					set_active(selected_index)
 				}
 				else if ($myInput.value.length >= 3) {
 					if (event.key === 'Enter') {
@@ -89,6 +112,10 @@
 						});
 					}
 					else {
+						if (selected_index !== -1) {
+							selected_index = -1;
+							set_active(selected_index)
+						}
 						if(Date.now() - since_last_request > 66) {
 							$("#search-result").empty().removeClass("visually-hidden")
 							const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
@@ -110,8 +137,8 @@
 
 <body class="d-flex flex-column min-vh-100" onLoad="onLoaded()">
 	<div class="container">
-		<header class="navbar align-items-center">
-			<a href="javascript:history.go(0)">
+		<header class="m-2">
+			<a class="text-decoration-none text-dark h1" href="javascript:history.go(0)">
 				MTG Card Helper
 			</a>
 		</header>
@@ -119,15 +146,17 @@
 			<label class="form-label" for="card-search">Search</label>
 			<input class="form-control" type="text" id="card-search" name="card-search">
 		</div>
-		<div id="search-result" class="list-group bg-light search-list overflow-scroll visually-hidden position-sticky my-1"></div>
+		<div class="h-100 w-100">
+			<div id="search-result" class="list-group bg-light search-list overflow-scroll visually-hidden position-fixed h-100"></div>
 
-		<div class="m-2">
-			<label for="scale" class="visually-hidden">Scale</label>
-			<div class="input-group mb-2 mr-sm-2">
-				<div class="input-group-prepend">
-					<div class="input-group-text">Scale</div>
+			<div class="m-2">
+				<label for="scale" class="visually-hidden">Scale</label>
+				<div class="input-group mb-2 mr-sm-2">
+					<div class="input-group-prepend">
+						<div class="input-group-text">Scale</div>
+					</div>
+					<input type="text" class="form-control" id="scale" placeholder="100">
 				</div>
-				<input type="text" class="form-control" id="scale" placeholder="100">
 			</div>
 		</div>
 		<footer class="fixed-bottom">

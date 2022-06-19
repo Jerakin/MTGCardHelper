@@ -13,7 +13,7 @@
 **************************************************************************/
 
 .search-list {
-    max-height: 250px !important;
+    /*max-height: 250px !important;*/
     overflow-x:hidden !important;
     z-index: 1070;
     width:inherit !important;
