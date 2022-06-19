@@ -201,11 +201,14 @@
 			// Button to find all versions of a card
 			$(document).on("click", "img.mtg-card", function(event){
 				console.log("[DEBUG] : " + "Update Version View")
-				show_list("card-image-result", true)
+
 				$("#card-image-result").empty()
 				active_list_type = "card-image-result"
 				const this_uri = jQuery(this).data("print-search-uri");
 				update_image_view(this_uri);
+				setTimeout(function() {
+					show_list("card-image-result", true)
+				}, 150);
 			});
 
 			// Big cards
