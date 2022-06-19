@@ -155,7 +155,6 @@
 				const children = p_group.children();
 				for (var i = 0; i < children.length; i++) {
 					const properties_id = jQuery(children[i]).data("id");
-					console.log("[DEBUG] : " + "Collect Track Properties: " + properties_id)
 
 					let p = {}
 					p.scale = document.getElementById('scale-'+ properties_id).value;
@@ -192,7 +191,7 @@
 					$.each(latest_data["data"], function(index, element){
 						if (element["name"] === this_name) {
 							const url = element["image_uris"]["png"];
-							const props = {url:url, name:this_name + ".png", overwrite:false, tracks: collect_track_properties()}
+							const props = {url:url, name:this_name, overwrite:false, tracks: collect_track_properties()}
 							downloadAndImport(props)
 						}
 					});
@@ -215,7 +214,7 @@
 				active_list_type = "card-image-result"
 				const url = jQuery(this).data("card-uri");
 				const card_name = jQuery(this).data("card-name");
-				const props = {url:url, name:card_name + ".png", overwrite:false, tracks: collect_track_properties()}
+				const props = {url:url, name:card_name, overwrite:true, tracks: collect_track_properties()}
 				downloadAndImport(props)
 			});
 
@@ -268,12 +267,12 @@
 						if (selected_index === -1) {
 							const element = latest_data["data"][0]
 							const url = element["image_uris"]["png"];
-							const props = {url:url, name:element["name"] + ".png", overwrite:false, tracks:  collect_track_properties()}
+							const props = {url:url, name:element["name"], overwrite:false, tracks:  collect_track_properties()}
 							downloadAndImport(props)
 						} else {
 							const element = latest_data["data"][selected_index]
 							const url = element["image_uris"]["png"];
-							const props = {url:url, name:element["name"] + ".png", overwrite:false, tracks:  collect_track_properties()}
+							const props = {url:url, name:element["name"], overwrite:false, tracks:  collect_track_properties()}
 							downloadAndImport(props)
 						}
 					}
@@ -283,8 +282,8 @@
 				}
 
 				$myInput.onkeyup = function(event) {
-					console.log(event.key)
 					if (event.key === "Backspace" || (event.key.length === 1 && (event.key >= "A" && event.key <= "Z") || (event.key >= "a" && event.key <= "z"))) {
+						selected_index = -1;
 						clearTimeout(typing_timer);
 						typing_timer = setTimeout(update_card_list, 200);
 					}
@@ -327,7 +326,6 @@
 			const children = p_group.children();
 			for (var i = 0; i < children.length; i++) {
 				const properties_id = jQuery(children[i]).data("id");
-				console.log("[DEBUG] : " + "Collect Track Properties: " + properties_id)
 
 				let p = {}
 				p.scale = document.getElementById('scale-'+ properties_id).value;

@@ -92,7 +92,6 @@ function exportSettingsJson(data) {
 		const fs = require('fs');
 		const fullPath = result + '/mtgdeckhelper.json';
 		console.log("[DEBUG] : " + "Export: " + fullPath)
-
 		fs.writeFileSync(fullPath, JSON.stringify(data));
 	})
 
@@ -110,7 +109,10 @@ function importSettingsJson(fn) {
 }
 
 function downloadAndImport(args) {
-	console.log("[DEBUG] : " + "Import: " + args.url)
+	console.log("[DEBUG] : " + "Download and Import: " + args.url)
+	console.log("[DEBUG] : " + "Download and Import: " + args.name)
+	args.name = args.name.replace(/[^a-z0-9-_]/gi, '-') + ".png";
+	console.log("[DEBUG] : " + "Download and Import: " + args.name)
 	const csInterface = new CSInterface();
 	// call the evalScript we made in the jsx file
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
@@ -126,6 +128,7 @@ function downloadAndImport(args) {
 		const eval_line = "$._PPP_.chImportFile('" + JSON.stringify(args) + "')"
 		fs.stat(fullPath, function(err, stat) {
 			if((err && err.code === 'ENOENT') || args.overwrite) {
+				console.log("[DEBUG] : " + "Downloading File: " + fullPath)
 				const file = fs.createWriteStream(fullPath);
 				const request = https.get(args.url, function(response) {
 					response.pipe(file);
@@ -136,6 +139,7 @@ function downloadAndImport(args) {
 
 				});
 			} else if(err === null) {
+				console.log("[DEBUG] : " + "Skipping Download - File Exists: " + fullPath)
 				csInterface.evalScript(eval_line);
 			}
 		});

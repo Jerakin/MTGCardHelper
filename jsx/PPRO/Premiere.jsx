@@ -144,26 +144,31 @@ $._PPP_={
 	chImportFile : function (args) {
 		const bin_name = 'card-images';
 		const arg_obj = JSON.parse(args);
+		$._PPP_.updateEventPanel("Importing into project: " + arg_obj.name);
 		var bin = $._PPP_.searchForBinWithName(bin_name);
 		if (bin === undefined){
 			app.project.rootItem.createBin(bin_name);
 			bin = $._PPP_.searchForBinWithName(bin_name);
 		}
+
 		if (bin) {
 			bin.select();
 			var clip = $._PPP_.chGetProjectItemWithPathInBin(arg_obj.file_path, bin);
 			if (clip === false) {  // File have not been imported yet
+				$._PPP_.updateEventPanel("Importing into project: " + arg_obj.file_path);
 				app.project.importFiles([arg_obj.file_path], true, bin, false);
 				clip = $._PPP_.chGetProjectItemWithPathInBin(arg_obj.file_path, bin);
+
 			}
 			var cValues = $._PPP_.chInsertClip(clip);
 			var track_item = cValues[0];
 			var track = cValues[1];
 			var properties = undefined;
+			$._PPP_.updateEventPanel("Inserted: " + arg_obj.name + "\nTrack: " + track.name);
 			if (track_item) {
 				for (var i = 0; i < arg_obj.tracks.length; i++) {
 					var current = arg_obj.tracks[i];
-					if (current.track && current.track === track.id){
+					if (current.track && "Video " + current.track === track.name){
 						properties = current;
 						break
 					}
