@@ -22,7 +22,7 @@
 	<script src="./lib/CSInterface.js"></script>
 	<script src="./lib/jquery-1.9.1.js"></script>
 	<script src="./lib/Vulcan.js"></script>
-	<script src="./lib/bootstrap.js"></script>
+	<script src="./lib/bootstrap.bundle.min.js"></script>
 	<link id="bootstap" href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript">
 		$(document).ready(function () {
@@ -38,13 +38,16 @@
 						// TODO: This should use the dropdown
 						const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
 						get_call.done(function(data) {
+							const $scale_x = document.getElementById('scale-x');
+							const $scale_y = document.getElementById('scale-y');
 							const url = data["data"][0]["image_uris"]["png"];
 							const name = data["data"][0]["name"];
-							downloadAndImport(url, name + ".png")
+							downloadAndImport(url, name + ".png", ($scale_x.value || 100), ($scale_y.value || 100))
+
 						});
 					}
 					else {
-						if(Date.now() - since_last_request > 75) {
+						if(Date.now() - since_last_request > 66) {
 							$("#search-result").empty()
 							const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
 							get_call.done(function(data) {

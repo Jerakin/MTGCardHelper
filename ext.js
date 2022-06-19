@@ -6,8 +6,6 @@ function onLoaded () {
 
 	loadJSX();
 
-	// Update the color of the panel when the theme color of the product changed.
-	csInterface.addEventListener(CSInterface.THEME_COLOR_CHANGED_EVENT, onAppThemeColorChanged);
 	// Listen for event sent in response to rendering a sequence.
 	csInterface.addEventListener("com.adobe.csxs.events.PProPanelRenderEvent", function(event) {
 		alert(event.data);
@@ -49,7 +47,7 @@ function loadJSX() {
 	csInterface.evalScript("$._ext.evalFiles(\"" + extensionRootApp + "\")");
 }
 
-function downloadAndImport(url, fileName) {
+function downloadAndImport(url, fileName, scale_x, scale_y) {
 	const csInterface = new CSInterface();
 	// call the evalScript we made in the jsx file
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
@@ -61,13 +59,13 @@ function downloadAndImport(url, fileName) {
 		fs.mkdir(downloadDirectory, { recursive: true }, (err) => {})
 
 		const fullPath = downloadDirectory + "/" + fileName;
+		const eval_line = "$._PPP_.chImportFile('" + fullPath + "','" + scale_x + "','" + scale_y + "')"
+		console.log(eval_line)
 		fs.stat(fullPath, function(err, stat) {
 			if(err == null) {
 				console.log("Import: " + fullPath)
-				// First we need to check if it already exists in the project
-				if (true){
-					csInterface.evalScript("$._PPP_.chImportFile('" + fullPath + "')");
-				}
+				// csInterface.evalScript("$._PPP_.chImportFile('" + fullPath + "')");
+				csInterface.evalScript(eval_line);
 				//
 			} else if(err.code === 'ENOENT') {
 				const file = fs.createWriteStream(fullPath);
@@ -76,7 +74,7 @@ function downloadAndImport(url, fileName) {
 					// ensure file is complete before importing
 					response.on('end', function() {
 						console.log("Download: " + fullPath)
-						csInterface.evalScript("$._PPP_.chImportFile('" + fullPath + "')");
+						csInterface.evalScript(eval_line);
 					});
 
 				});

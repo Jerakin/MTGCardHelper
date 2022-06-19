@@ -2860,40 +2860,53 @@ $._PPP_={
 		return(joined);
 	},
 
+	chTimeFromPlayerPositionToNextClipStart : function(track) {
+		var now = app.project.activeSequence.getPlayerPosition()
+		var clip_after = undefined;
+
+		for (var i = 0; i < track.clips.numItems; i++) {
+			var clip = track.clips[i];
+			if (clip.start.seconds > now.seconds) {
+				clip_after = clip;
+				break
+			}
+		}
+
+		if (clip_after === undefined) {
+			return undefined
+		}
+		return clip_after.start
+	},
+
 	chInsertClip : function(clip){
 		var seq = app.project.activeSequence;
 		if (seq) {
 			if (!clip.isSequence()) {
-
 				if (clip.type !== ProjectItemType.BIN) {
-					var numVTracks = seq.videoTracks.numTracks;
-					var targetVTrack = seq.videoTracks[(numVTracks - 1)];
+					var targeted = [];
+					for (var i = 0; i < seq.videoTracks.numTracks; i++) {
+						var track = seq.videoTracks[i];
+						if (track.isTargeted()) {
+							targeted.push(track);
+						}
+					}
+					var targetVTrack = targeted[(targeted.length - 1)];
 					if (targetVTrack) {
-						// If there are already clips in this track, append this one to the end. Otherwise, insert at start time.ck) {
-						//var now = seq.getPlayerPosition()
-						if (targetVTrack.clips.numItems > 0) {
-							var lastClip = targetVTrack.clips[(targetVTrack.clips.numItems - 1)];
-							if (lastClip) {
-								targetVTrack.insertClip(clip, lastClip.end.seconds);
-							}
-						} else {
-							var timeAtZero = new Time();
-							targetVTrack.insertClip(clip, timeAtZero.seconds);
-
-							// Using linkSelection/unlinkSelection calls, panels can remove just the audio (or video) of a given clip.
-							var newlyAddedClip = targetVTrack.clips[(targetVTrack.clips.numItems - 1)];
-							//$._PPP_.updateEventPanel("Inserting Clip " + targetVTrack.clips.numItems - 1);
-							if (newlyAddedClip) {
-								newlyAddedClip.setSelected(true, true);
-								seq.unlinkSelection();
-								newlyAddedClip.remove(true, true);
-								seq.linkSelection();
-							} else {
-								$._PPP_.updateEventPanel("Could not add clip.");
+						var now = seq.getPlayerPosition()
+						var end_time = $._PPP_.chTimeFromPlayerPositionToNextClipStart(targetVTrack)
+						if (end_time) {
+							clip.setOutPoint((end_time.seconds - now.seconds), 1);
+						}
+						targetVTrack.overwriteClip(clip, now.ticks);
+						// Find the newly added video track to return it
+						for (var j = 0; j < targetVTrack.numItems; j++) {
+							var track_clip = track.clips[i];
+							if (track_clip.start.ticks === now.ticks) {
+								return track_clip
 							}
 						}
 					} else {
-						$._PPP_.updateEventPanel("Could not find first video track.");
+						$._PPP_.updateEventPanel("Could not find a targeted track.");
 					}
 				} else {
 					$._PPP_.updateEventPanel(clip.name + " is a bin.");
@@ -2904,6 +2917,7 @@ $._PPP_={
 		} else {
 			$._PPP_.updateEventPanel("Couldn't locate first projectItem.");
 		}
+		return undefined
 	},
 
 	chGetResourceWithPathInBin : function (path, bin) {
@@ -2915,7 +2929,7 @@ $._PPP_={
 		return false;
 	},
 
-	chImportFile : function (file_path) {
+	chImportFile : function (file_path,scale_x,scale_y) {
 		const bin_name = 'card-images';
 		var bin = $._PPP_.searchForBinWithName(bin_name);
 		if (bin === undefined){
@@ -2935,8 +2949,53 @@ $._PPP_={
 				clip = $._PPP_.chGetResourceWithPathInBin(file_path, bin);
 			}
 
+			// Add all clips from all tracks so we can later compare against it
+			var clips_before = [];
+			for (var i2 = 0; i2 < app.project.activeSequence.videoTracks.numTracks; i2++) {
+				var track2 = app.project.activeSequence.videoTracks[i2];
+				for (var i3 = 0; i3 < track2.clips.numItems; i3++) {
+					var clip2 = track2.clips[i3];
+					clips_before.push(clip2);
+				}
+			}
+			// Insert the Clip
 			$._PPP_.updateEventPanel("Adding image: " + clip.name);
-			$._PPP_.chInsertClip(clip)
+			var track_item = $._PPP_.chInsertClip(clip);
+
+			var changed = false;
+			for (var i4 = 0; i4 < app.project.activeSequence.videoTracks.numTracks; i4++) {
+				if (changed) {
+					break
+				}
+				var track3 = app.project.activeSequence.videoTracks[i4];
+				for (var i5 = 0; i5 < track3.clips.numItems; i5++) {
+					var clip3 = track3.clips[i5];
+					var is_new = true;
+					// Iterate all "clips_before" and check which of the clips in any videoTracks is our newly added
+					for (var i8 = 0; i8 < clips_before.length; i8++) {
+						var clip_old = clips_before[i8];
+						// Compared to ProjectItems it doesn't seem like TrackItems have an id to check against.
+						if (clip_old.end.seconds === clip3.end.seconds && clip_old.start.seconds === clip3.start.seconds) {
+							is_new = false;
+						}
+					}
+					if (is_new) {
+						// Iterate components and then properties to find scale and set it
+						for (var i6 = 0; i6 < clip3.components.numItems; i6++) {
+							var comp = clip3.components[i6]
+							if (comp.displayName === "Motion") {
+								for (var i7 = 0; i7 < comp.properties.numItems; i7++) {
+									var prop = comp.properties[i7]
+									if (prop.displayName === "Scale") {
+										prop.setValue(parseFloat(scale_x), 1);
+										changed = true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 };
