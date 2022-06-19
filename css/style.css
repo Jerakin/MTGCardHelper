@@ -12,9 +12,13 @@
 * written permission of Adobe. 
 **************************************************************************/
 
-.search-list {
+.result-list {
     /*max-height: 250px !important;*/
     overflow-x:hidden !important;
     z-index: 1070;
     width:inherit !important;
+    pointer-events: none;
+}
+.result-sub-list {
+    pointer-events: auto;
 }

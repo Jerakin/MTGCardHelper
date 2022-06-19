@@ -47,7 +47,7 @@ function loadJSX() {
 	csInterface.evalScript("$._ext.evalFiles(\"" + extensionRootApp + "\")");
 }
 
-function downloadAndImport(url, fileName, scale_x, scale_y) {
+function downloadAndImport(url, fileName, scale, force) {
 	const csInterface = new CSInterface();
 	// call the evalScript we made in the jsx file
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
@@ -59,15 +59,14 @@ function downloadAndImport(url, fileName, scale_x, scale_y) {
 		fs.mkdir(downloadDirectory, { recursive: true }, (err) => {})
 
 		const fullPath = downloadDirectory + "/" + fileName;
-		const eval_line = "$._PPP_.chImportFile('" + fullPath + "','" + scale_x + "','" + scale_y + "')"
+		const eval_line = "$._PPP_.chImportFile('" + fullPath + "','" + scale + "')"
 		console.log(eval_line)
 		fs.stat(fullPath, function(err, stat) {
-			if(err == null) {
-				console.log("Import: " + fullPath)
-				// csInterface.evalScript("$._PPP_.chImportFile('" + fullPath + "')");
-				csInterface.evalScript(eval_line);
-				//
-			} else if(err.code === 'ENOENT') {
+			console.log((err && err.code === 'ENOENT') || force)
+			console.log(force)
+			console.log((err && err.code === 'ENOENT'))
+
+			if((err && err.code === 'ENOENT') || force) {
 				const file = fs.createWriteStream(fullPath);
 				const request = https.get(url, function(response) {
 					response.pipe(file);
@@ -78,6 +77,9 @@ function downloadAndImport(url, fileName, scale_x, scale_y) {
 					});
 
 				});
+			} else if(err === null) {
+				console.log("Import: " + fullPath)
+				csInterface.evalScript(eval_line);
 			}
 		});
 	})

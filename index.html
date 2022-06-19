@@ -33,6 +33,21 @@
 			let typing_timer;
 			let selected_index = -1;
 			let latest_data = {}
+
+			function show_set_card_images(uri){
+				const get_call = $.get(uri);
+				get_call.done(function (data) {
+					$.each(data["data"], function (index, element) {
+						const list_element = `
+
+	<img class="card-img w-25 mr-auto" src="${element["image_uris"]["small"]}" alt="SET" data-card-uri="${element["image_uris"]["png"]}" data-card-name="${element["name"]}">
+
+`
+						$("#card-result").append(list_element)
+					});
+				});
+			}
+
 			$(document).on("click", "a.mtg-card", function(event){
 				if (latest_data){
 					const $scale = document.getElementById('scale');
@@ -40,10 +55,25 @@
 					$.each(latest_data["data"], function(index, element){
 						if (element["name"] === this_name) {
 							const url = element["image_uris"]["png"];
-							downloadAndImport(url, this_name + ".png", ($scale.value || 100))
+							downloadAndImport(url, this_name + ".png", ($scale.value || 100), false)
 						}
 					});
 				}
+			});
+
+			$(document).on("click", "img.mtg-card", function(event){
+				$("#search-result").empty().addClass("visually-hidden");
+				$("#card-result").empty().removeClass("visually-hidden");
+
+				const this_uri = jQuery(this).data("print-search-uri");
+				show_set_card_images(this_uri);
+			});
+
+			$(document).on("click", "img.card-img", function(event){
+				const $scale = document.getElementById('scale');
+				const url = jQuery(this).data("card-uri");
+				const card_name = jQuery(this).data("card-name");
+				downloadAndImport(url, card_name + ".png", ($scale.value || 100), true)
 			});
 
 			const set_active = function(index){
@@ -68,6 +98,7 @@
 			// });
 
 			$('#card-search').on("focus", function(){
+				$("#card-result").empty().addClass("visually-hidden");
 				if ($('#search-result').children().length !== 0) {
 					$("#search-result").removeClass("visually-hidden");
 				}
@@ -79,7 +110,7 @@
 						selected_index = -1;
 						set_active(selected_index)
 					}
-				}, 100)
+				}, 150)
 			});
 
 			$myInput.onkeydown = function(event){
@@ -100,11 +131,11 @@
 						if (selected_index === -1) {
 							const element = latest_data["data"][0]
 							const url = element["image_uris"]["png"];
-							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100))
+							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100), false)
 						} else {
 							const element = latest_data["data"][selected_index]
 							const url = element["image_uris"]["png"];
-							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100))
+							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100), false)
 						}
 					}
 				else {
@@ -127,7 +158,13 @@
 							console.log("https://api.scryfall.com/cards/search?q=" + $myInput.value)
 							latest_data = data;
 							$.each(data["data"], function (index, element) {
-								$("#search-result").append("<a href='#' class='mtg-card list-group-item list-group-item-action'>" + element["name"] + "</a>")
+								const list_element = `
+<div class='d-flex justify-content-between list-group-item list-group-item-action'>
+	<a class='mtg-card text-decoration-none text-dark align-self-start w-100 d-block' href='#'>${element["name"]}</a>
+	<img class="mtg-card img-fluid h-100" src="assets/files.png" alt="SET" data-print-search-uri="${element["prints_search_uri"]}">
+</div>
+`
+								$("#search-result").append(list_element)
 							});
 						});
 					} else {
@@ -152,7 +189,10 @@
 			<input class="form-control" type="text" id="card-search" name="card-search">
 		</div>
 		<div class="h-100 w-100">
-			<div id="search-result" class="list-group search-list overflow-scroll visually-hidden position-fixed h-100"></div>
+			<div class="list-group result-list overflow-scroll h-100 position-fixed d-flex">
+				<div id="search-result" class="result-sub-list visually-hidden"></div>
+				<div id="card-result" class="result-sub-list d-flex visually-hidden flex-wrap align-content-center"></div>
+			</div>
 
 			<div class="m-2">
 				<label for="scale" class="visually-hidden">Scale</label>

@@ -2945,7 +2945,7 @@ $._PPP_={
 		$._PPP_.updateEventPanel("Could not set the " + properties_name + " of " + component_name + " to " + value);
 	},
 
-	chImportFile : function (file_path,scale_x,scale_y) {
+	chImportFile : function (file_path,scale) {
 		const bin_name = 'card-images';
 		var bin = $._PPP_.searchForBinWithName(bin_name);
 		if (bin === undefined){
@@ -2962,7 +2962,7 @@ $._PPP_={
 
 			var track_item = $._PPP_.chInsertClip(clip);
 			if (track_item) {
-				$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Scale", parseFloat(scale_x))
+				$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Scale", parseFloat(scale))
 			} else {
 				$._PPP_.updateEventPanel("Could not find Track Item after adding it.");
 			}
