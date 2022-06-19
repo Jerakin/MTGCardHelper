@@ -120,6 +120,7 @@
 						$("#card-image-result").addClass("d-none");
 						$("#parent-result").removeClass("d-none");
 						$("#properties-group").addClass("d-none");
+						$("#add-track-setting").addClass("d-none");
 					}
 				} else {
 					if (toggle) {
@@ -127,6 +128,7 @@
 						$("#card-list-result").addClass("d-none");
 						$("#parent-result").removeClass("d-none");
 						$("#properties-group").addClass("d-none");
+						$("#add-track-setting").addClass("d-none");
 					}
 				}
 				if (!toggle) {
@@ -134,6 +136,7 @@
 					$("#card-image-result").addClass("d-none");
 					$("#parent-result").addClass("d-none");
 					$("#properties-group").removeClass("d-none");
+					$("#add-track-setting").removeClass("d-none");
 				}
 			}
 
@@ -272,7 +275,8 @@
 				}
 
 				$myInput.onkeyup = function(event) {
-					if (event.key.length === 1 && (event.key >= "A" && event.key <= "Z") || (event.key >= "a" && event.key <= "z")) {
+					console.log(event.key)
+					if (event.key === "Backspace" || (event.key.length === 1 && (event.key >= "A" && event.key <= "Z") || (event.key >= "a" && event.key <= "z"))) {
 						clearTimeout(typing_timer);
 						typing_timer = setTimeout(update_card_list, 200);
 					}
