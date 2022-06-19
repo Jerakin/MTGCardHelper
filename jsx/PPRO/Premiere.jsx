@@ -2896,11 +2896,14 @@ $._PPP_={
 						var end_time = $._PPP_.chTimeFromPlayerPositionToNextClipStart(targetVTrack)
 						if (end_time) {
 							clip.setOutPoint((end_time.seconds - now.seconds), 1);
+						} else {
+							clip.setOutPoint(3, 1);
 						}
 						targetVTrack.overwriteClip(clip, now.ticks);
-						// Find the newly added video track to return it
-						for (var j = 0; j < targetVTrack.numItems; j++) {
-							var track_clip = track.clips[i];
+						// Find the newly added video track and return it
+						for (var j = 0; j < targetVTrack.clips.numItems; j++) {
+							var track_clip = targetVTrack.clips[j];
+							$._PPP_.updateEventPanel(track_clip.start.ticks + " | " + now.ticks);
 							if (track_clip.start.ticks === now.ticks) {
 								return track_clip
 							}
@@ -2920,7 +2923,7 @@ $._PPP_={
 		return undefined
 	},
 
-	chGetResourceWithPathInBin : function (path, bin) {
+	chGetProjectItemWithPathInBin : function (path, bin) {
 		for (var i = 0; i < bin.children.numItems; i++) {
 			if (bin.children[i].getMediaPath() === path) {
 				return bin.children[i];
@@ -2929,73 +2932,46 @@ $._PPP_={
 		return false;
 	},
 
+	// This is using the localised displayName - I bet that will be an issue in the future
+	chTrackItemChangeProperty : function(track_item, component_name, properties_name, value) {
+		for (var i = 0; i < track_item.components.numItems; i++) {
+			var comp = track_item.components[i]
+			if (comp.displayName === component_name) {
+				for (var j = 0; j < comp.properties.numItems; j++) {
+					var prop = comp.properties[j]
+					if (prop.displayName === properties_name) {
+						prop.setValue(value, 1);
+						return undefined;
+					}
+				}
+			}
+		}
+		$._PPP_.updateEventPanel("Could not set the " + properties_name + " of " + component_name + " to " + value);
+	},
+
 	chImportFile : function (file_path,scale_x,scale_y) {
 		const bin_name = 'card-images';
 		var bin = $._PPP_.searchForBinWithName(bin_name);
 		if (bin === undefined){
-			$._PPP_.updateEventPanel("Created bin: " + bin_name);
 			app.project.rootItem.createBin(bin_name);
 			bin = $._PPP_.searchForBinWithName(bin_name);
 		}
 		if (bin) {
 			bin.select();
-			var clip = $._PPP_.chGetResourceWithPathInBin(file_path, bin);
-			if (clip === false) {
-				$._PPP_.updateEventPanel("Importing file: " + file_path);
-				app.project.importFiles([file_path],
-					true,
-					bin,
-					false);
-				clip = $._PPP_.chGetResourceWithPathInBin(file_path, bin);
+			var clip = $._PPP_.chGetProjectItemWithPathInBin(file_path, bin);
+			if (clip === false) {  // File have not been imported yet
+				app.project.importFiles([file_path], true, bin, false);
+				clip = $._PPP_.chGetProjectItemWithPathInBin(file_path, bin);
 			}
 
-			// Add all clips from all tracks so we can later compare against it
-			var clips_before = [];
-			for (var i2 = 0; i2 < app.project.activeSequence.videoTracks.numTracks; i2++) {
-				var track2 = app.project.activeSequence.videoTracks[i2];
-				for (var i3 = 0; i3 < track2.clips.numItems; i3++) {
-					var clip2 = track2.clips[i3];
-					clips_before.push(clip2);
-				}
-			}
-			// Insert the Clip
-			$._PPP_.updateEventPanel("Adding image: " + clip.name);
 			var track_item = $._PPP_.chInsertClip(clip);
-
-			var changed = false;
-			for (var i4 = 0; i4 < app.project.activeSequence.videoTracks.numTracks; i4++) {
-				if (changed) {
-					break
-				}
-				var track3 = app.project.activeSequence.videoTracks[i4];
-				for (var i5 = 0; i5 < track3.clips.numItems; i5++) {
-					var clip3 = track3.clips[i5];
-					var is_new = true;
-					// Iterate all "clips_before" and check which of the clips in any videoTracks is our newly added
-					for (var i8 = 0; i8 < clips_before.length; i8++) {
-						var clip_old = clips_before[i8];
-						// Compared to ProjectItems it doesn't seem like TrackItems have an id to check against.
-						if (clip_old.end.seconds === clip3.end.seconds && clip_old.start.seconds === clip3.start.seconds) {
-							is_new = false;
-						}
-					}
-					if (is_new) {
-						// Iterate components and then properties to find scale and set it
-						for (var i6 = 0; i6 < clip3.components.numItems; i6++) {
-							var comp = clip3.components[i6]
-							if (comp.displayName === "Motion") {
-								for (var i7 = 0; i7 < comp.properties.numItems; i7++) {
-									var prop = comp.properties[i7]
-									if (prop.displayName === "Scale") {
-										prop.setValue(parseFloat(scale_x), 1);
-										changed = true;
-									}
-								}
-							}
-						}
-					}
-				}
+			if (track_item) {
+				$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Scale", parseFloat(scale_x))
+			} else {
+				$._PPP_.updateEventPanel("Could not find Track Item after adding it.");
 			}
+		} else {
+			$._PPP_.updateEventPanel("Could not find the bin: " + bin_name);
 		}
 	}
 };
