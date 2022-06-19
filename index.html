@@ -35,6 +35,44 @@
 			let latest_data = {}
 			let active_list_type = ""
 
+			function get_property_group(track){
+				return`
+<div class="p-2 border-start border-1 ${track % 2 ? "border-primary" : "border-warning" }" id="properties-${track}">
+	<label for="track" class="d-none">Track</label>
+	<div class="input-group mb-2 mr-sm-2">
+		<div class="input-group-prepend">
+			<div class="input-group-text">Track</div>
+		</div>
+		<input type="number" class="form-control" id="track">
+	</div>
+	<label for="scale" class="d-none">Scale</label>
+	<div class="input-group mb-2 mr-sm-2">
+		<div class="input-group-prepend">
+			<div class="input-group-text">Scale</div>
+		</div>
+		<input type="text" class="form-control" id="scale" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="100.0">
+	</div>
+
+	<div class="row">
+		<label for="pos-x" class="d-none">PosX</label>
+		<div class="input-group mb-2 mr-sm-2 col">
+			<div class="input-group-prepend">
+				<div class="input-group-text">Pos X</div>
+			</div>
+			<input type="text" class="form-control" id="pos-x" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
+		</div>
+		<label for="pos-x" class="d-none">PosY</label>
+		<div class="input-group mb-2 mr-sm-2 col">
+			<div class="input-group-prepend">
+				<div class="input-group-text">Pos Y</div>
+			</div>
+			<input type="text" class="form-control" id="pos-y" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
+		</div>
+	</div>
+</div>
+`
+			}
+			
 			function update_card_list () {
 				if ($myInput.value.length >= 3) {
 					show_list("card-list-result", true)
@@ -78,26 +116,27 @@
 						$("#card-list-result").removeClass("d-none");
 						$("#card-image-result").addClass("d-none");
 						$("#parent-result").removeClass("d-none");
-						$("#properties").addClass("d-none");
+						$("#properties-group").addClass("d-none");
 					}
 				} else {
 					if (toggle) {
 						$("#card-image-result").removeClass("d-none");
 						$("#card-list-result").addClass("d-none");
 						$("#parent-result").removeClass("d-none");
-						$("#properties").addClass("d-none");
+						$("#properties-group").addClass("d-none");
 					}
 				}
 				if (!toggle) {
 					$("#card-list-result").addClass("d-none");
 					$("#card-image-result").addClass("d-none");
 					$("#parent-result").addClass("d-none");
-					$("#properties").removeClass("d-none");
+					$("#properties-group").removeClass("d-none");
 				}
 			}
 
 			function collect_track_properties(){
 				let prop = []
+				
 				let p = {}
 				p.scale = document.getElementById('scale').value;
 				p.track = document.getElementById('track').value;
@@ -113,6 +152,12 @@
 				prop.push(p)
 				return prop
 			}
+
+			// Add Track Setting
+			$(document).on("click", "button", function(event){
+				const p_group = $("#properties-group");
+				p_group.append(get_property_group(p_group.children().length));
+			});
 
 			// List entry click
 			$(document).on("click", "a.mtg-card", function(event){
@@ -234,38 +279,8 @@
 			<div id="card-list-result" class="list-group d-none overflow-auto h-100"></div>
 			<div id="card-image-result" class="d-none overflow-auto me-0 h-100 row row-cols-3"></div>
 		</div>
-		<div class="p-2" id="properties">
-			<label for="track" class="d-none">Track</label>
-			<div class="input-group mb-2 mr-sm-2">
-				<div class="input-group-prepend">
-					<div class="input-group-text">Track</div>
-				</div>
-				<input type="number" class="form-control" id="track">
-			</div>
-			<label for="scale" class="d-none">Scale</label>
-			<div class="input-group mb-2 mr-sm-2">
-				<div class="input-group-prepend">
-					<div class="input-group-text">Scale</div>
-				</div>
-				<input type="text" class="form-control" id="scale" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="100.0">
-			</div>
-
-			<div class="row">
-				<label for="pos-x" class="d-none">PosX</label>
-				<div class="input-group mb-2 mr-sm-2 col">
-					<div class="input-group-prepend">
-						<div class="input-group-text">Pos X</div>
-					</div>
-					<input type="text" class="form-control" id="pos-x" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
-				</div>
-				<label for="pos-x" class="d-none">PosY</label>
-				<div class="input-group mb-2 mr-sm-2 col">
-					<div class="input-group-prepend">
-						<div class="input-group-text">Pos Y</div>
-					</div>
-					<input type="text" class="form-control" id="pos-y" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
-				</div>
-			</div>
+		<button class="btn btn-primary w-75 shadow-none m-auto">Add Track Setting</button>
+		<div class="p-2" id="properties-group">
 		</div>
 		<footer class="fixed-bottom">
 			<div>Created by <a href="https://github.com/Jerakin" target="_blank">Jerakin</a>
