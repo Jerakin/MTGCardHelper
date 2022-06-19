@@ -275,6 +275,8 @@
 							const props = {url:url, name:element["name"], overwrite:false, tracks:  collect_track_properties()}
 							downloadAndImport(props)
 						}
+						show_list("-", false)
+						$myInput.blur();
 					}
 				else {
 						clearTimeout(typing_timer);
