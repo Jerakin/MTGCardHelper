@@ -31,24 +31,19 @@
 		$(document).ready(function () {
 			const $myInput = document.getElementById('card-search');
 			let since_last_request = Date.now();
+			let last_key_press = Date.now();
 			let selected_index = -1;
 			let latest_data = {}
 			$(document).on("click", "a.mtg-card", function(event){
-				const $scale = document.getElementById('scale');
 				if (latest_data){
-					if (selected_index === -1){
-						const this_name = jQuery(this).text();
-						$.each(latest_data["data"], function(index, element){
-							if (element["name"] === this_name) {
-								const url = element["image_uris"]["png"];
-								downloadAndImport(url, this_name + ".png", ($scale.value || 100))
-							}
-						});
-					} else {
-						const element = latest_data["data"][selected_index]
-						const url = element["image_uris"]["png"];
-						downloadAndImport(url, element["name"] + ".png", ($scale.value || 100))
-					}
+					const $scale = document.getElementById('scale');
+					const this_name = jQuery(this).text();
+					$.each(latest_data["data"], function(index, element){
+						if (element["name"] === this_name) {
+							const url = element["image_uris"]["png"];
+							downloadAndImport(url, this_name + ".png", ($scale.value || 100))
+						}
+					});
 				}
 			});
 
@@ -102,31 +97,36 @@
 				}
 				else if ($myInput.value.length >= 3) {
 					if (event.key === 'Enter') {
-						// TODO: This should use the dropdown
-						const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
-						get_call.done(function(data) {
-							const $scale = document.getElementById('scale');
-							const url = data["data"][0]["image_uris"]["png"];
-							const name = data["data"][0]["name"];
+						const $scale = document.getElementById('scale');
+						if (selected_index === -1) {
+							const element = latest_data["data"][0]
+							const url = element["image_uris"]["png"];
 							downloadAndImport(url, name + ".png", ($scale.value || 100))
-						});
+						} else {
+							const element = latest_data["data"][selected_index]
+							const url = element["image_uris"]["png"];
+							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100))
+						}
 					}
 					else {
 						if (selected_index !== -1) {
 							selected_index = -1;
 							set_active(selected_index)
 						}
-						if(Date.now() - since_last_request > 66) {
-							$("#search-result").empty().removeClass("visually-hidden")
-							const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
-							get_call.done(function(data) {
-								latest_data = data;
-								$.each(data["data"], function(index, element){
-									$("#search-result").append("<a href='#' class='mtg-card list-group-item list-group-item-action'>" + element["name"] + "</a>")
+						if(Date.now() - last_key_press > 66) {
+							if(Date.now() - since_last_request > 66) {
+								$("#search-result").empty().removeClass("visually-hidden")
+								const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
+								get_call.done(function(data) {
+									latest_data = data;
+									$.each(data["data"], function(index, element){
+										$("#search-result").append("<a href='#' class='mtg-card list-group-item list-group-item-action'>" + element["name"] + "</a>")
+									});
+									since_last_request = Date.now();
 								});
-								since_last_request = Date.now();
-							});
+							}
 						}
+						last_key_press = Date.now();
 					}
 				}
 			}
@@ -185,3 +185,7 @@
 	};
 </script>
 </html>
+
+Key press - start-variable and start timer
+if start-variable is different from start-timer passed variable
+  start new timer
