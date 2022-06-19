@@ -97,15 +97,33 @@
 				}
 			}
 
+			function collect_track_properties(){
+				let prop = []
+				let p = {}
+				p.scale = document.getElementById('scale').value;
+				p.track = document.getElementById('track').value;
+				p.x = document.getElementById('pos-x').value;
+				p.y = document.getElementById('pos-y').value;
+
+				p.scale = p.scale && parseFloat(p.scale)
+				p.track = p.track && parseInt(p.track)
+				p.x = p.x && parseFloat(p.x)
+				p.y = p.y && parseFloat(p.y)
+
+
+				prop.push(p)
+				return prop
+			}
+
 			// List entry click
 			$(document).on("click", "a.mtg-card", function(event){
 				if (latest_data){
-					const $scale = document.getElementById('scale');
 					const this_name = jQuery(this).text();
 					$.each(latest_data["data"], function(index, element){
 						if (element["name"] === this_name) {
 							const url = element["image_uris"]["png"];
-							downloadAndImport(url, this_name + ".png", ($scale.value || 100), false)
+							const props = {url:url, name:this_name + ".png", overwrite:false, tracks: collect_track_properties()}
+							downloadAndImport(props)
 						}
 					});
 				}
@@ -124,10 +142,10 @@
 			// Big cards
 			$(document).on("click", "img.set-card-img", function(event){
 				active_list_type = "card-image-result"
-				const $scale = document.getElementById('scale');
 				const url = jQuery(this).data("card-uri");
 				const card_name = jQuery(this).data("card-name");
-				downloadAndImport(url, card_name + ".png", ($scale.value || 100), true)
+				const props = {url:url, name:card_name + ".png", overwrite:false, tracks: collect_track_properties()}
+				downloadAndImport(props)
 			});
 
 			// Dropdown list navigation visualiser
@@ -175,15 +193,16 @@
 				}
 				else if (event.key === 'Enter') {
 					if ($myInput.value.length >= 3) {
-						const $scale = document.getElementById('scale');
 						if (selected_index === -1) {
 							const element = latest_data["data"][0]
 							const url = element["image_uris"]["png"];
-							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100), false)
+							const props = {url:url, name:element["name"] + ".png", overwrite:false, tracks:  collect_track_properties()}
+							downloadAndImport(props)
 						} else {
 							const element = latest_data["data"][selected_index]
 							const url = element["image_uris"]["png"];
-							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100), false)
+							const props = {url:url, name:element["name"] + ".png", overwrite:false, tracks:  collect_track_properties()}
+							downloadAndImport(props)
 						}
 					}
 				else {
@@ -192,7 +211,7 @@
 				}
 
 				$myInput.onkeyup = function(event) {
-					if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter') {} else {
+					if (event.key.length === 1 && (event.key >= "A" && event.key <= "Z") || (event.key >= "a" && event.key <= "z")) {
 						clearTimeout(typing_timer);
 						typing_timer = setTimeout(update_card_list, 200);
 					}
@@ -202,7 +221,7 @@
 	</script>
 </head>
 
-<body class="d-flex flex-column min-vh-100" onLoad="onLoaded()">
+<body class="d-flex flex-column min-vh-100" onLoad="onLoaded()" oncontextmenu="return false;">
 	<div class="container d-flex flex-column">
 		<header class="p-2 m-2">
 			<a class="text-decoration-none text-dark h1" href="javascript:history.go(0)">
@@ -218,12 +237,36 @@
 			<div id="card-image-result" class="d-none overflow-auto me-0 h-100 row row-cols-3"></div>
 		</div>
 		<div class="p-2" id="properties">
+			<label for="track" class="d-none">Track</label>
+			<div class="input-group mb-2 mr-sm-2">
+				<div class="input-group-prepend">
+					<div class="input-group-text">Track</div>
+				</div>
+				<input type="number" class="form-control" id="track">
+			</div>
 			<label for="scale" class="d-none">Scale</label>
 			<div class="input-group mb-2 mr-sm-2">
 				<div class="input-group-prepend">
 					<div class="input-group-text">Scale</div>
 				</div>
-				<input type="text" class="form-control" id="scale" placeholder="100">
+				<input type="text" class="form-control" id="scale" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="100.0">
+			</div>
+
+			<div class="row">
+				<label for="pos-x" class="d-none">PosX</label>
+				<div class="input-group mb-2 mr-sm-2 col">
+					<div class="input-group-prepend">
+						<div class="input-group-text">Pos X</div>
+					</div>
+					<input type="text" class="form-control" id="pos-x" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
+				</div>
+				<label for="pos-x" class="d-none">PosY</label>
+				<div class="input-group mb-2 mr-sm-2 col">
+					<div class="input-group-prepend">
+						<div class="input-group-text">Pos Y</div>
+					</div>
+					<input type="text" class="form-control" id="pos-y" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="0.5">
+				</div>
 			</div>
 		</div>
 		<footer class="fixed-bottom">

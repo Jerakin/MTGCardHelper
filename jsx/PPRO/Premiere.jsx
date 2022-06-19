@@ -2899,9 +2899,8 @@ $._PPP_={
 						// Find the newly added video track and return it
 						for (var j = 0; j < targetVTrack.clips.numItems; j++) {
 							var track_clip = targetVTrack.clips[j];
-							$._PPP_.updateEventPanel(track_clip.start.ticks + " | " + now.ticks);
 							if (track_clip.start.ticks === now.ticks) {
-								return track_clip
+								return [track_clip, targetVTrack]
 							}
 						}
 					} else {
@@ -2916,7 +2915,7 @@ $._PPP_={
 		} else {
 			$._PPP_.updateEventPanel("Couldn't locate first projectItem.");
 		}
-		return undefined
+		return [undefined, undefined]
 	},
 
 	chGetProjectItemWithPathInBin : function (path, bin) {
@@ -2932,10 +2931,14 @@ $._PPP_={
 	chTrackItemChangeProperty : function(track_item, component_name, properties_name, value) {
 		for (var i = 0; i < track_item.components.numItems; i++) {
 			var comp = track_item.components[i]
+			$._PPP_.updateEventPanel(comp.displayName);
 			if (comp.displayName === component_name) {
+
 				for (var j = 0; j < comp.properties.numItems; j++) {
 					var prop = comp.properties[j]
+					$._PPP_.updateEventPanel("  " + prop.displayName);
 					if (prop.displayName === properties_name) {
+						$._PPP_.updateEventPanel(" - " + prop.getValue() + " | " + JSON.stringify(prop.getValue()));
 						prop.setValue(value, 1);
 						return undefined;
 					}
@@ -2945,8 +2948,9 @@ $._PPP_={
 		$._PPP_.updateEventPanel("Could not set the " + properties_name + " of " + component_name + " to " + value);
 	},
 
-	chImportFile : function (file_path,scale) {
+	chImportFile : function (args) {
 		const bin_name = 'card-images';
+		const arg_obj = JSON.parse(args);
 		var bin = $._PPP_.searchForBinWithName(bin_name);
 		if (bin === undefined){
 			app.project.rootItem.createBin(bin_name);
@@ -2954,15 +2958,30 @@ $._PPP_={
 		}
 		if (bin) {
 			bin.select();
-			var clip = $._PPP_.chGetProjectItemWithPathInBin(file_path, bin);
+			var clip = $._PPP_.chGetProjectItemWithPathInBin(arg_obj.file_path, bin);
 			if (clip === false) {  // File have not been imported yet
-				app.project.importFiles([file_path], true, bin, false);
-				clip = $._PPP_.chGetProjectItemWithPathInBin(file_path, bin);
+				app.project.importFiles([arg_obj.file_path], true, bin, false);
+				clip = $._PPP_.chGetProjectItemWithPathInBin(arg_obj.file_path, bin);
 			}
-
-			var track_item = $._PPP_.chInsertClip(clip);
+			var cValues = $._PPP_.chInsertClip(clip);
+			var track_item = cValues[0];
+			var track = cValues[1];
+			var properties = undefined;
+			$._PPP_.updateEventPanel("chImportFile2");
 			if (track_item) {
-				$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Scale", parseFloat(scale))
+				for (var i = 0; i < arg_obj.tracks.length; i++) {
+					var current = arg_obj.tracks[i];
+					if (current.track && current.track === track.id){
+						properties = current;
+						break
+					}
+				}
+				if (properties) {
+					$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Scale", properties.scale)
+					$._PPP_.chTrackItemChangeProperty(track_item, "Motion", "Position", [properties.x, properties.y])
+				} else {
+					$._PPP_.updateEventPanel("No properties for track: " + track.id);
+				}
 			} else {
 				$._PPP_.updateEventPanel("Could not find Track Item after adding it.");
 			}

@@ -45,9 +45,64 @@ function loadJSX() {
 	// load JSX scripts based on appName
 	var extensionRootApp = extensionPath + "/jsx/" + appName + "/";
 	csInterface.evalScript("$._ext.evalFiles(\"" + extensionRootApp + "\")");
+
+
+	const keyEventsInterest = [
+		{
+			"keyCode": 0, // Ctrl + A
+			"ctrlKey": true
+		},
+		{
+			"keyCode": 8, // Ctrl + C
+			"ctrlKey": true
+		},
+		{
+			"keyCode": 9, // Ctrl + V
+			"ctrlKey": true
+		},
+		{
+			"keyCode": 7, // Ctrl + X
+			"ctrlKey": true
+		},
+		{
+			"keyCode": 0, // Cmd + A
+			"metaKey": true
+		},
+		{
+			"keyCode": 8, // Cmd + C
+			"metaKey": true
+		},
+		{
+			"keyCode": 9, // Cmd + V
+			"metaKey": true
+		},
+		{
+			"keyCode": 7, // Cmd + X
+			"metaKey": true
+		},
+		{
+			"keyCode": 51 // Backspace
+		},
+		{
+			"keyCode": 117, // Delete
+		},
+		{
+			"keyCode": 124, // Right
+		},
+		{
+			"keyCode": 123, // Left
+		},
+		{
+			"keyCode": 126, // Up
+		},
+		{
+			"keyCode": 125, // Down
+		}
+	]
+	CSInterface.prototype.registerKeyEventsInterest(JSON.stringify(keyEventsInterest));
 }
 
-function downloadAndImport(url, fileName, scale, force) {
+function downloadAndImport(args) {
 	const csInterface = new CSInterface();
 	// call the evalScript we made in the jsx file
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
@@ -58,27 +113,21 @@ function downloadAndImport(url, fileName, scale, force) {
 		const downloadDirectory = result + '/Downloads';
 		fs.mkdir(downloadDirectory, { recursive: true }, (err) => {})
 
-		const fullPath = downloadDirectory + "/" + fileName;
-		const eval_line = "$._PPP_.chImportFile('" + fullPath + "','" + scale + "')"
-		console.log(eval_line)
+		const fullPath = downloadDirectory + "/" + args.name;
+		args.file_path = fullPath;
+		const eval_line = "$._PPP_.chImportFile('" + JSON.stringify(args) + "')"
 		fs.stat(fullPath, function(err, stat) {
-			console.log((err && err.code === 'ENOENT') || force)
-			console.log(force)
-			console.log((err && err.code === 'ENOENT'))
-
-			if((err && err.code === 'ENOENT') || force) {
+			if((err && err.code === 'ENOENT') || args.overwrite) {
 				const file = fs.createWriteStream(fullPath);
-				const request = https.get(url, function(response) {
+				const request = https.get(args.url, function(response) {
 					response.pipe(file);
 					// ensure file is complete before importing
 					response.on('end', function() {
-						console.log("Download: " + fullPath)
 						csInterface.evalScript(eval_line);
 					});
 
 				});
 			} else if(err === null) {
-				console.log("Import: " + fullPath)
 				csInterface.evalScript(eval_line);
 			}
 		});
