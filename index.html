@@ -30,8 +30,7 @@
 	<script type="text/javascript">
 		$(document).ready(function () {
 			const $myInput = document.getElementById('card-search');
-			let since_last_request = Date.now();
-			let last_key_press = Date.now();
+			let typing_timer;
 			let selected_index = -1;
 			let latest_data = {}
 			$(document).on("click", "a.mtg-card", function(event){
@@ -69,7 +68,7 @@
 			// });
 
 			$('#card-search').on("focus", function(){
-				if ($('#search-result').children().length > 0) {
+				if ($('#search-result').children().length !== 0) {
 					$("#search-result").removeClass("visually-hidden");
 				}
 			})
@@ -92,11 +91,11 @@
 				else if (event.key === 'ArrowDown') {
 					event.preventDefault();
 					const num_children = $('#search-result').children().length
-					selected_index = Math.min(selected_index+1, num_children);
+					selected_index = Math.min(selected_index+1, num_children-1);
 					set_active(selected_index)
 				}
-				else if ($myInput.value.length >= 3) {
-					if (event.key === 'Enter') {
+				else if (event.key === 'Enter') {
+					if ($myInput.value.length >= 3) {
 						const $scale = document.getElementById('scale');
 						if (selected_index === -1) {
 							const element = latest_data["data"][0]
@@ -108,25 +107,31 @@
 							downloadAndImport(url, element["name"] + ".png", ($scale.value || 100))
 						}
 					}
-					else {
-						if (selected_index !== -1) {
-							selected_index = -1;
-							set_active(selected_index)
-						}
-						if(Date.now() - last_key_press > 66) {
-							if(Date.now() - since_last_request > 66) {
-								$("#search-result").empty().removeClass("visually-hidden")
-								const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
-								get_call.done(function(data) {
-									latest_data = data;
-									$.each(data["data"], function(index, element){
-										$("#search-result").append("<a href='#' class='mtg-card list-group-item list-group-item-action'>" + element["name"] + "</a>")
-									});
-									since_last_request = Date.now();
-								});
-							}
-						}
-						last_key_press = Date.now();
+				else {
+						clearTimeout(typing_timer);
+					}
+				}
+
+				$myInput.onkeyup = function(event) {
+					if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter') {} else {
+						clearTimeout(typing_timer);
+						typing_timer = setTimeout(update_list, 200);
+					}
+				}
+
+				function update_list () {
+					if ($myInput.value.length >= 3) {
+						$("#search-result").empty().removeClass("visually-hidden")
+						const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
+						get_call.done(function (data) {
+							console.log("https://api.scryfall.com/cards/search?q=" + $myInput.value)
+							latest_data = data;
+							$.each(data["data"], function (index, element) {
+								$("#search-result").append("<a href='#' class='mtg-card list-group-item list-group-item-action'>" + element["name"] + "</a>")
+							});
+						});
+					} else {
+						$("#search-result").empty().addClass("visually-hidden");
 					}
 				}
 			}
@@ -147,7 +152,7 @@
 			<input class="form-control" type="text" id="card-search" name="card-search">
 		</div>
 		<div class="h-100 w-100">
-			<div id="search-result" class="list-group bg-light search-list overflow-scroll visually-hidden position-fixed h-100"></div>
+			<div id="search-result" class="list-group search-list overflow-scroll visually-hidden position-fixed h-100"></div>
 
 			<div class="m-2">
 				<label for="scale" class="visually-hidden">Scale</label>
@@ -185,7 +190,3 @@
 	};
 </script>
 </html>
-
-Key press - start-variable and start timer
-if start-variable is different from start-timer passed variable
-  start new timer
