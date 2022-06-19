@@ -42,7 +42,6 @@
 					$("#card-list-result").empty()
 					const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
 					get_call.done(function (data) {
-						console.log("https://api.scryfall.com/cards/search?q=" + $myInput.value)
 						latest_data = data;
 						$.each(data["data"], function (index, element) {
 							const list_element = `
@@ -135,7 +134,6 @@
 				$("#card-image-result").empty()
 				active_list_type = "card-image-result"
 				const this_uri = jQuery(this).data("print-search-uri");
-				console.log(this_uri)
 				update_image_view(this_uri);
 			});
 
@@ -170,7 +168,7 @@
 				}
 			})
 			.on("focusout", function(){
-				// show_list("-", false)
+				show_list("-", false)
 				setTimeout(function() {
 					if (selected_index !== -1) {
 						selected_index = -1;

@@ -2931,14 +2931,11 @@ $._PPP_={
 	chTrackItemChangeProperty : function(track_item, component_name, properties_name, value) {
 		for (var i = 0; i < track_item.components.numItems; i++) {
 			var comp = track_item.components[i]
-			$._PPP_.updateEventPanel(comp.displayName);
 			if (comp.displayName === component_name) {
 
 				for (var j = 0; j < comp.properties.numItems; j++) {
 					var prop = comp.properties[j]
-					$._PPP_.updateEventPanel("  " + prop.displayName);
 					if (prop.displayName === properties_name) {
-						$._PPP_.updateEventPanel(" - " + prop.getValue() + " | " + JSON.stringify(prop.getValue()));
 						prop.setValue(value, 1);
 						return undefined;
 					}
@@ -2967,7 +2964,6 @@ $._PPP_={
 			var track_item = cValues[0];
 			var track = cValues[1];
 			var properties = undefined;
-			$._PPP_.updateEventPanel("chImportFile2");
 			if (track_item) {
 				for (var i = 0; i < arg_obj.tracks.length; i++) {
 					var current = arg_obj.tracks[i];
