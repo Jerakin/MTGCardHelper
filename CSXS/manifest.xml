@@ -3,7 +3,7 @@
 ExtensionBundleName="MTG Card Helper"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="com.jerakin.mtgcardhelper" Version="10.3.0" />
+		<Extension Id="com.jerakin.mtgcardhelper" Version="1.0.0" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -39,8 +39,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 					<Menu>MTG Card Helper</Menu>
 					<Geometry>
 						<Size>
-							<Height>300</Height>
-							<Width>180</Width>
+							<Height>500</Height>
+							<Width>350</Width>
 						</Size>
 					</Geometry>
 				</UI>

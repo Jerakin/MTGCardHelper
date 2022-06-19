@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<macromedia-extension
+        id="com.jerakin.mtgcardhelper"
+        name="MTG Card Helper"
+        requires-restart="true"
+        version="1.0.0">
+    <author name="Jerakin"/>
+    <description>
+        MTG Card Helper is the MTG Video Content Creators helper.
+    </description>
+    <ui-access>
+        Window -> Extensions -> MTG Card Helper
+    </ui-access>
+    <products>
+        <product familyname="Premiere Pro" version="13"/>
+    </products>
+    <files>
+        <file source="CEP/MTGCardHelper.zxp"
+              destination=""
+              file-type="CSXS"
+              products="Photoshop,Photoshop32,Photoshop64"
+              minVersion="14.0" />
+    </files>
+</macromedia-extension>
