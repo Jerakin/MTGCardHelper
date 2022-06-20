@@ -116,7 +116,7 @@
 	<img class="set-card-img col" src="${element["image_uris"]["small"]}" alt="SET" data-card-uri="${element["image_uris"]["png"]}" data-card-name="${element["name"]}">
 
 `
-						$("#card-image-result").append(list_element)
+						$("#card-image-group").append(list_element)
 					});
 				});
 			}
@@ -202,7 +202,7 @@
 			$(document).on("click", "img.mtg-card", function(event){
 				console.log("[DEBUG] : " + "Update Version View")
 
-				$("#card-image-result").empty()
+				$("#card-image-group").empty()
 				active_list_type = "card-image-result"
 				const this_uri = jQuery(this).data("print-search-uri");
 				update_image_view(this_uri);
@@ -313,7 +313,11 @@
 		</div>
 		<div id="parent-result" class="p-2 result-list w-100 d-none">
 			<div id="card-list-result" class="list-group d-none overflow-auto h-100"></div>
-			<div id="card-image-result" class="gx-1 gy-1 d-none overflow-auto me-0 h-100 row row-cols-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 row-cols-xl-7"></div>
+			<div id="card-image-result" class="d-none overflow-auto h-100">
+				<div id="card-image-group" class="gx-1 gy-1 me-0 row row-cols-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 row-cols-xl-7">
+
+				</div>
+			</div>
 		</div>
 		<div class="p-2" id="properties-group">
 		</div>
