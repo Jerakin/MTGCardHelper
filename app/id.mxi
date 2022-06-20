@@ -18,7 +18,7 @@
         <file source="CEP/MTGCardHelper.zxp"
               destination=""
               file-type="CSXS"
-              products="Photoshop,Photoshop32,Photoshop64"
+              products="Premiere"
               minVersion="14.0" />
     </files>
 </macromedia-extension>
