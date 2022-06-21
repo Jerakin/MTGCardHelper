@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import shutil
 import os
 import subprocess
-import re
+import xml.etree.ElementTree as ET
 
 NAME = "MTGCardHelper"
 root = Path(__file__).parent
@@ -36,24 +36,33 @@ def copy_assets():
 
 
 def build_app(v):
-    cmd = [os.getenv('ZXPSIGNCMD'), "-sign", build.as_posix(), dist / f"{NAME}-{v}.zxp",
+    build_ = dist / f"{NAME}-{v}.zxp"
+    if build_.exists():
+        build_.unlink()
+    cmd = [os.getenv('ZXPSIGNCMD'), "-sign", build.as_posix(), build_.as_posix(),
            os.getenv('CERTIFICATE'), os.getenv('PASSWORD'),  "-tsa", "http://time.certum.pl/"]
 
     subprocess.run(cmd)
 
 
+def verify_app(v):
+    cmd = [os.getenv('ZXPSIGNCMD'), "-verify", dist / f"{NAME}-{v}.zxp",
+           "-certinfo"]
+
+    subprocess.run(cmd)
+
+
 def update_version(v):
-    re_manifest_v = re.compile('Version="(.*)"')
-
-    new_manifest_v = f'Version="{v}"'
     source = build / "CSXS" / "manifest.xml"
-    with source.open("r") as fp:
-        file_content = fp.read()
 
-    file_content = re.sub(re_manifest_v, new_manifest_v, file_content)
+    tree = ET.parse(source.as_posix())
+    xml_root = tree.getroot()
+    xml_root.set("ExtensionBundleVersion", v)
 
-    with source.open("w") as fp:
-        fp.write(file_content)
+    ext_list = xml_root.find("ExtensionList")
+    for ext in ext_list.iter("Extension"):
+        ext.set("Version", v)
+    tree.write(source.as_posix())
 
 
 app_version = (root / "VERSION").read_text().strip()
@@ -61,3 +70,4 @@ setup()
 copy_assets()
 update_version(app_version)
 build_app(app_version)
+verify_app(app_version)

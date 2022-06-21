@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="5.0" ExtensionBundleId="com.jerakin.mtgcardhelper" ExtensionBundleVersion="11.1"
-ExtensionBundleName="MTG Card Helper"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ExtensionManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				   ExtensionBundleId="com.jerakin.mtgcardhelper"
+				   ExtensionBundleVersion="1.0.0" Version="7.0"
+				   ExtensionBundleName="MTG Card Helper">
 	<ExtensionList>
-		<Extension Id="com.jerakin.mtgcardhelper.panel" Version="1.0.0" />
+		<Extension Id="com.jerakin.mtgcardhelper.panel" Version="1.0.1" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
-			<Host Name="PPRO" Version="9.0" />
+			<Host Name="PPRO" Version="12.0" />
 		</HostList>
 		<LocaleList>
 			<Locale Code="All" />
 		</LocaleList>
 		<RequiredRuntimeList>
-			<RequiredRuntime Name="CSXS" Version="6.0" />
+			<RequiredRuntime Name="CSXS" Version="7.0" />
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
-
 	<DispatchInfoList>
 		<Extension Id="com.jerakin.mtgcardhelper.panel">
 			<DispatchInfo >
