@@ -3,7 +3,7 @@
 ExtensionBundleName="MTG Card Helper"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="com.jerakin.mtgcardhelper" Version="1.0.0" />
+		<Extension Id="com.jerakin.mtgcardhelper.panel" Version="1.0.0" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -18,7 +18,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	</ExecutionEnvironment>
 
 	<DispatchInfoList>
-		<Extension Id="com.jerakin.mtgcardhelper">
+		<Extension Id="com.jerakin.mtgcardhelper.panel">
 			<DispatchInfo >
 				<Resources>
 					<MainPath>./index.html</MainPath>
