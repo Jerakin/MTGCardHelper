@@ -3,12 +3,13 @@ from dotenv import load_dotenv
 import shutil
 import os
 import subprocess
+import re
 
-
+NAME = "MTGCardHelper"
 root = Path(__file__).parent
 app = root / "app"
-build = root / "build" / "MTGCardHelper"
-dist = root / "dist" / "MTGCardHelper.zxp"
+build = root / "build" / NAME
+dist = root / "dist"
 
 load_dotenv()
 
@@ -34,13 +35,29 @@ def copy_assets():
             shutil.copyfile(file, new_path)
 
 
-def build_app():
-    cmd = [os.getenv('ZXPSIGNCMD'), "-sign", build.as_posix(), dist.as_posix(),
+def build_app(v):
+    cmd = [os.getenv('ZXPSIGNCMD'), "-sign", build.as_posix(), dist / f"{NAME}-{v}.zxp",
            os.getenv('CERTIFICATE'), os.getenv('PASSWORD'),  "-tsa", "http://time.certum.pl/"]
 
     subprocess.run(cmd)
 
 
+def update_version(v):
+    re_manifest_v = re.compile('Version="(.*)"')
+
+    new_manifest_v = f'Version="{v}"'
+    source = build / "CSXS" / "manifest.xml"
+    with source.open("r") as fp:
+        file_content = fp.read()
+
+    file_content = re.sub(re_manifest_v, new_manifest_v, file_content)
+
+    with source.open("w") as fp:
+        fp.write(file_content)
+
+
+app_version = (root / "VERSION").read_text().strip()
 setup()
 copy_assets()
-build_app()
+update_version(app_version)
+build_app(app_version)
