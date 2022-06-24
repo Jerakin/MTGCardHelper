@@ -1,4 +1,6 @@
 from pathlib import Path
+
+import click
 from dotenv import load_dotenv
 import shutil
 import os
@@ -6,54 +8,54 @@ import subprocess
 import xml.etree.ElementTree as ET
 
 NAME = "MTGCardHelper"
-root = Path(__file__).parent
-app = root / "app"
-build = root / "build" / NAME
-dist = root / "dist"
+root_path = Path(__file__).parent
+app_path = root_path / "app"
+build_path = root_path / "build" / NAME
+dist_path = root_path / "dist"
 
 load_dotenv()
 
-exclude = [".debug", ".env", ".DS_Store", "_MACOSX", "META-INF"]
+exclude = [".env", ".DS_Store", "_MACOSX", "META-INF"]
 
 
 def setup():
-    if build.exists():
-        shutil.rmtree(build)
+    if build_path.exists():
+        shutil.rmtree(build_path)
 
-    dist.parent.mkdir(exist_ok=True)
-    build.mkdir(parents=True, exist_ok=True)
+    dist_path.parent.mkdir(exist_ok=True)
+    build_path.mkdir(parents=True, exist_ok=True)
 
 
 def copy_assets():
-    for file in app.glob("**/*.*"):
+    for file in app_path.glob("**/*.*"):
         skip = [x for x in exclude if x in file.as_posix()]
         if skip:
             continue
         if file.is_file():
-            new_path = build / file.relative_to(app)
+            new_path = build_path / file.relative_to(app_path)
             new_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(file, new_path)
 
 
 def build_app(v):
-    build_ = dist / f"{NAME}-{v}.zxp"
+    build_ = dist_path / f"{NAME}-{v}.zxp"
     if build_.exists():
         build_.unlink()
-    cmd = [os.getenv('ZXPSIGNCMD'), "-sign", build.as_posix(), build_.as_posix(),
+    cmd = [os.getenv('ZXPSIGNCMD'), "-sign", build_path.as_posix(), build_.as_posix(),
            os.getenv('CERTIFICATE'), os.getenv('PASSWORD'),  "-tsa", "http://time.certum.pl/"]
 
     subprocess.run(cmd)
 
 
 def verify_app(v):
-    cmd = [os.getenv('ZXPSIGNCMD'), "-verify", dist / f"{NAME}-{v}.zxp",
+    cmd = [os.getenv('ZXPSIGNCMD'), "-verify", dist_path / f"{NAME}-{v}.zxp",
            "-certinfo"]
 
     subprocess.run(cmd)
 
 
 def update_version(v):
-    source = build / "CSXS" / "manifest.xml"
+    source = build_path / "CSXS" / "manifest.xml"
 
     tree = ET.parse(source.as_posix())
     xml_root = tree.getroot()
@@ -65,9 +67,21 @@ def update_version(v):
     tree.write(source.as_posix())
 
 
-app_version = (root / "VERSION").read_text().strip()
-setup()
-copy_assets()
-update_version(app_version)
-build_app(app_version)
-verify_app(app_version)
+@click.command()
+@click.option("--debug", default=False)
+@click.option("--no-verify", default=False)
+def build(debug, no_verify):
+    if not debug:
+        exclude.append(".debug")
+
+    app_version = (root_path / "VERSION").read_text().strip()
+    setup()
+    copy_assets()
+    update_version(app_version)
+    build_app(app_version)
+    if not no_verify:
+        verify_app(app_version)
+
+
+if __name__ == '__main__':
+    build()
