@@ -32,18 +32,20 @@ $._PPP_={
 	},
 
 	chProjectPath : function() {
-
 		const projectPath = app.project.path;
-
-		// split the path into an array
-		const parsed = projectPath.split("/");
+		$._PPP_.updateEventPanel("Project Path: " + projectPath);
+		var sep = "\\";
+		if("/" === projectPath.slice(0, 1)){
+			sep = "/";
+		}
+		const parsed = projectPath.split(sep);
 
 		// remove the last element (which is the name of the Premiere project file)
 		parsed.pop();
 
 		// rejoin the array, giving the parent directory of the Premiere project file
-		const joined = parsed.join("/");
-
+		const joined = parsed.join(sep);
+		$._PPP_.updateEventPanel("Project Path Post Joined: " + joined);
 		return(joined);
 	},
 
@@ -144,7 +146,6 @@ $._PPP_={
 	chImportFile : function (args) {
 		const bin_name = 'card-images';
 		const arg_obj = JSON.parse(args);
-		$._PPP_.updateEventPanel("Importing into project: " + arg_obj.name);
 		var bin = $._PPP_.searchForBinWithName(bin_name);
 		if (bin === undefined){
 			app.project.rootItem.createBin(bin_name);
@@ -164,7 +165,6 @@ $._PPP_={
 			var track_item = cValues[0];
 			var track = cValues[1];
 			var properties = undefined;
-			$._PPP_.updateEventPanel("Inserted: " + arg_obj.name + "\nTrack: " + track.name);
 			if (track_item) {
 				for (var i = 0; i < arg_obj.tracks.length; i++) {
 					var current = arg_obj.tracks[i];

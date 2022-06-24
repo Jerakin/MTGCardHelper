@@ -85,24 +85,31 @@ function loadJSX() {
 	CSInterface.prototype.registerKeyEventsInterest(JSON.stringify(keyEventsInterest));
 }
 
+function get_path_sep(path_with_root) {
+	var SEP = "\\";
+	if("/" === path_with_root.slice(0, 1)){
+		SEP = "/";
+	}
+	return SEP
+}
+
 function exportSettingsJson(data) {
 	const csInterface = new CSInterface();
-
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
+		var SEP = get_path_sep(result);
 		const fs = require('fs');
-		const fullPath = result + '/mtgdeckhelper.json';
-		console.log("[DEBUG] : " + "Export: " + fullPath)
+		const fullPath = result + SEP + 'mtgdeckhelper.json';
 		fs.writeFileSync(fullPath, JSON.stringify(data));
 	})
-
 }
+
 
 function importSettingsJson(fn) {
 	const csInterface = new CSInterface();
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
+		var SEP = get_path_sep(result);
 		const fs = require('fs');
-		const fullPath = result + '/mtgdeckhelper.json';
-		console.log("[DEBUG] : " + "Import: " + fullPath)
+		const fullPath = result + SEP + 'mtgdeckhelper.json';
 		const data = fs.readFileSync(fullPath, {encoding:"utf-8"});
 		fn(JSON.parse(data));
 	})
@@ -110,21 +117,20 @@ function importSettingsJson(fn) {
 
 function downloadAndImport(args) {
 	console.log("[DEBUG] : " + "Download and Import: " + args.url)
-	console.log("[DEBUG] : " + "Download and Import: " + args.name)
 	args.name = args.name.replace(/[^a-z0-9-_]/gi, '-') + ".png";
-	console.log("[DEBUG] : " + "Download and Import: " + args.name)
 	const csInterface = new CSInterface();
 	// call the evalScript we made in the jsx file
 	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
 		const https = require('https');
 		const fs = require('fs');
-
+		var SEP = get_path_sep(result);
 		// create a Downloads directory in the project path if it doesn't exist already
-		const downloadDirectory = result + '/Downloads';
+		const downloadDirectory = result + SEP + 'Downloads';
+
 		fs.mkdir(downloadDirectory, { recursive: true }, (err) => {})
 
-		const fullPath = downloadDirectory + "/" + args.name;
-		args.file_path = fullPath;
+		const fullPath = downloadDirectory + SEP + args.name;
+		args.file_path = fullPath.replaceAll("\\","\\\\");
 		const eval_line = "$._PPP_.chImportFile('" + JSON.stringify(args) + "')"
 		fs.stat(fullPath, function(err, stat) {
 			if((err && err.code === 'ENOENT') || args.overwrite) {
