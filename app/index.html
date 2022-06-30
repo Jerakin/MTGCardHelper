@@ -20,9 +20,8 @@
 	<meta charset="utf-8">
 	<script src="./ext.js"></script>
 	<script src="./lib/CSInterface.js"></script>
-<!--	<script src="./lib/jquery-1.9.1.js"></script>-->
-<!--	<script src="./lib/jquery-1.12.4.js"></script>-->
-		<script src="./lib/jquery-3.6.0.js"></script>
+	<script src="./lib/jquery-3.6.0.js"></script>
+	<script src="./lib/string-similarity.js"></script>
 	<script src="./lib/Vulcan.js"></script>
 	<script src="./lib/bootstrap.bundle.min.js"></script>
 	<link id="bootstrap" href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
@@ -121,6 +120,27 @@
 				});
 			}
 
+			function download_image(element, card_name){
+				if (element["name"] === card_name) {
+					if ("card_faces" in element) {
+						let card_faces = []
+						let similarities = []
+						$.each(element["card_faces"], function (index, card_face) {
+							similarities.push(compareTwoStrings(card_face["name"], $myInput.value))
+							card_faces.push(card_face)
+						})
+						const card_face = card_faces[similarities.indexOf(Math.max(...similarities))]
+						const url = card_face["image_uris"]["png"];
+						const props = {url:url, name:card_face["name"], overwrite:false, tracks: collect_track_properties()}
+						downloadAndImport(props)
+					} else {
+						const url = element["image_uris"]["png"];
+						const props = {url:url, name:card_name, overwrite:false, tracks: collect_track_properties()}
+						downloadAndImport(props)
+					}
+				}
+			}
+
 			function show_list(name, toggle) {
 				if (name === "card-list-result"){
 					if (toggle) {
@@ -189,11 +209,7 @@
 					console.log("[DEBUG] : " + "Download from list")
 					const this_name = jQuery(this).text();
 					$.each(latest_data["data"], function(index, element){
-						if (element["name"] === this_name) {
-							const url = element["image_uris"]["png"];
-							const props = {url:url, name:this_name, overwrite:false, tracks: collect_track_properties()}
-							downloadAndImport(props)
-						}
+						download_image(element, this_name)
 					});
 				}
 			});
@@ -270,14 +286,10 @@
 						console.log("[DEBUG] : " + "Download from enter key")
 						if (selected_index === -1) {
 							const element = latest_data["data"][0]
-							const url = element["image_uris"]["png"];
-							const props = {url:url, name:element["name"], overwrite:false, tracks:  collect_track_properties()}
-							downloadAndImport(props)
+							download_image(element, element["name"])
 						} else {
 							const element = latest_data["data"][selected_index]
-							const url = element["image_uris"]["png"];
-							const props = {url:url, name:element["name"], overwrite:false, tracks:  collect_track_properties()}
-							downloadAndImport(props)
+							download_image(element, element["name"])
 						}
 						show_list("-", false)
 						$myInput.blur();
