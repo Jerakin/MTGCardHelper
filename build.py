@@ -1,11 +1,12 @@
 from pathlib import Path
-
-import click
-from dotenv import load_dotenv
 import shutil
 import os
 import subprocess
 import xml.etree.ElementTree as ET
+
+import click
+from dotenv import load_dotenv
+from css_html_js_minify import process_single_js_file, process_single_css_file, process_single_html_file
 
 NAME = "MTGCardHelper"
 root_path = Path(__file__).parent
@@ -35,6 +36,17 @@ def copy_assets():
             new_path = build_path / file.relative_to(app_path)
             new_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(file, new_path)
+
+
+def minify_build():
+    for file in build_path.glob("**/*.*"):
+        print(file.suffix)
+        if file.suffix in [".js", ".jsx"]:
+            process_single_js_file(file.as_posix(), overwrite=True)
+        elif file.suffix in ".css" and ".min." not in file.name:
+            process_single_css_file(file.as_posix(), overwrite=True)
+        elif file.suffix in [".html"]:
+            process_single_html_file(file.as_posix(), overwrite=True)
 
 
 def build_app(v):
@@ -70,7 +82,8 @@ def update_version(v):
 @click.command()
 @click.option("--debug", default=False)
 @click.option("--no-verify", default=False)
-def build(debug, no_verify):
+@click.option("--minify", default=True)
+def build(debug, no_verify, minify):
     if not debug:
         exclude.append(".debug")
 
@@ -78,6 +91,8 @@ def build(debug, no_verify):
     setup()
     copy_assets()
     update_version(app_version)
+    if minify:
+        minify_build()
     build_app(app_version)
     if not no_verify:
         verify_app(app_version)
