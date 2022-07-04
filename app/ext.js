@@ -85,69 +85,317 @@ function loadJSX() {
 	CSInterface.prototype.registerKeyEventsInterest(JSON.stringify(keyEventsInterest));
 }
 
-function get_path_sep(path_with_root) {
-	var SEP = "\\";
-	if("/" === path_with_root.slice(0, 1)){
-		SEP = "/";
+var MTGCardHelper = function(){
+	let $myInput = undefined
+	let typing_timer;
+	let selected_index = -1;
+	let latest_data = {}
+	let active_list_type = ""
+	const https = require('https');
+	const fs = require('fs');
+	let csInterface = undefined;
+
+	function get_path_sep(path_with_root) {
+		let SEP = "\\";
+		if("/" === path_with_root.slice(0, 1)){
+			SEP = "/";
+		}
+		return SEP
 	}
-	return SEP
-}
 
-function exportSettingsJson(data) {
-	const csInterface = new CSInterface();
-	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
-		var SEP = get_path_sep(result);
-		const fs = require('fs');
-		const fullPath = result + SEP + 'mtgdeckhelper.json';
-		fs.writeFileSync(fullPath, JSON.stringify(data));
-	})
-}
+	function exportSettingsJson(data) {
+		csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
+			const SEP = get_path_sep(result);
+			const fullPath = result + SEP + 'mtgdeckhelper.json';
+			fs.writeFileSync(fullPath, JSON.stringify(data));
+		})
+	}
 
+	function importSettingsJson(fn) {
+		csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
+			const SEP = get_path_sep(result);
+			const fullPath = result + SEP + 'mtgdeckhelper.json';
+			const data = fs.readFileSync(fullPath, {encoding:"utf-8"});
+			fn(JSON.parse(data));
+		})
+	}
 
-function importSettingsJson(fn) {
-	const csInterface = new CSInterface();
-	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
-		var SEP = get_path_sep(result);
-		const fs = require('fs');
-		const fullPath = result + SEP + 'mtgdeckhelper.json';
-		const data = fs.readFileSync(fullPath, {encoding:"utf-8"});
-		fn(JSON.parse(data));
-	})
-}
+	function downloadAndImport(args) {
+		console.log("[DEBUG] : " + "Download and Import: " + args.url)
+		args.name = args.name.replace(/[^a-z0-9-_]/gi, '-') + ".png";
+		// call the evalScript we made in the jsx file
+		csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
+			const SEP = get_path_sep(result);
+			// create a Downloads directory in the project path if it doesn't exist already
+			const downloadDirectory = result + SEP + 'Downloads';
 
-function downloadAndImport(args) {
-	console.log("[DEBUG] : " + "Download and Import: " + args.url)
-	args.name = args.name.replace(/[^a-z0-9-_]/gi, '-') + ".png";
-	const csInterface = new CSInterface();
-	// call the evalScript we made in the jsx file
-	csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
-		const https = require('https');
-		const fs = require('fs');
-		var SEP = get_path_sep(result);
-		// create a Downloads directory in the project path if it doesn't exist already
-		const downloadDirectory = result + SEP + 'Downloads';
+			fs.mkdir(downloadDirectory, { recursive: true }, (err) => {})
 
-		fs.mkdir(downloadDirectory, { recursive: true }, (err) => {})
+			const fullPath = downloadDirectory + SEP + args.name;
+			args.file_path = fullPath.replaceAll("\\","\\\\");
+			const eval_line = "$._PPP_.chImportFile('" + JSON.stringify(args) + "')"
+			fs.stat(fullPath, function(err, stat) {
+				if((err && err.code === 'ENOENT') || args.overwrite) {
+					console.log("[DEBUG] : " + "Downloading File: " + fullPath)
+					const file = fs.createWriteStream(fullPath);
+					const request = https.get(args.url, function(response) {
+						response.pipe(file);
+						// ensure file is complete before importing
+						response.on('end', function() {
+							csInterface.evalScript(eval_line);
+						});
 
-		const fullPath = downloadDirectory + SEP + args.name;
-		args.file_path = fullPath.replaceAll("\\","\\\\");
-		const eval_line = "$._PPP_.chImportFile('" + JSON.stringify(args) + "')"
-		fs.stat(fullPath, function(err, stat) {
-			if((err && err.code === 'ENOENT') || args.overwrite) {
-				console.log("[DEBUG] : " + "Downloading File: " + fullPath)
-				const file = fs.createWriteStream(fullPath);
-				const request = https.get(args.url, function(response) {
-					response.pipe(file);
-					// ensure file is complete before importing
-					response.on('end', function() {
-						csInterface.evalScript(eval_line);
 					});
+				} else if(err === null) {
+					console.log("[DEBUG] : " + "Skipping Download - File Exists: " + fullPath)
+					csInterface.evalScript(eval_line);
+				}
+			});
+		})
+	}
 
-				});
-			} else if(err === null) {
-				console.log("[DEBUG] : " + "Skipping Download - File Exists: " + fullPath)
-				csInterface.evalScript(eval_line);
+	function collect_track_properties(){
+		let prop = []
+		console.log("[DEBUG] : " + "Start Collection")
+		const p_group = $("#properties-group");
+		const children = p_group.children();
+		for (let i = 0; i < children.length; i++) {
+			const properties_id = jQuery(children[i]).data("id");
+
+			let p = {}
+			p.scale = document.getElementById('scale-'+ properties_id).value;
+			p.track = document.getElementById('track-'+ properties_id).value;
+			p.x = document.getElementById('pos-x-'+ properties_id).value;
+			p.y = document.getElementById('pos-y-'+ properties_id).value;
+
+			p.scale = p.scale && parseFloat(p.scale)
+			p.track = p.track && parseInt(p.track)
+			p.x = p.x && parseFloat(p.x)
+			p.y = p.y && parseFloat(p.y)
+			prop.push(p)
+		}
+		return prop
+	}
+
+	function beforeLoad() {
+		const track_data = collect_track_properties()
+		exportSettingsJson(track_data)
+	}
+
+	function download_image(element, card_name){
+		if (element["name"] === card_name) {
+			if ("card_faces" in element) {
+				let card_faces = []
+				let similarities = []
+				$.each(element["card_faces"], function (index, card_face) {
+					similarities.push(compareTwoStrings(card_face["name"], $myInput.value))
+					card_faces.push(card_face)
+				})
+				const card_face = card_faces[similarities.indexOf(Math.max(...similarities))]
+				const url = card_face["image_uris"]["png"];
+				const props = {url:url, name:card_face["name"], overwrite:false, tracks: collect_track_properties()}
+				downloadAndImport(props)
+			} else {
+				const url = element["image_uris"]["png"];
+				const props = {url:url, name:card_name, overwrite:false, tracks: collect_track_properties()}
+				downloadAndImport(props)
 			}
+		}
+	}
+
+	function show_list(name, toggle) {
+		if (name === "card-list-result"){
+			if (toggle) {
+				$("#card-list-result").removeClass("d-none");
+				$("#card-image-result").addClass("d-none");
+				$("#parent-result").removeClass("d-none");
+				$("#properties-group").addClass("d-none");
+				$("#add-track-setting").addClass("d-none");
+			}
+		} else {
+			if (toggle) {
+				$("#card-image-result").removeClass("d-none");
+				$("#card-list-result").addClass("d-none");
+				$("#parent-result").removeClass("d-none");
+				$("#properties-group").addClass("d-none");
+				$("#add-track-setting").addClass("d-none");
+			}
+		}
+		if (!toggle) {
+			$("#card-list-result").addClass("d-none");
+			$("#card-image-result").addClass("d-none");
+			$("#parent-result").addClass("d-none");
+			$("#properties-group").removeClass("d-none");
+			$("#add-track-setting").removeClass("d-none");
+		}
+	}
+
+	// Dropdown list navigation visualiser
+	const set_active = function(index){
+		const children = $('#card-list-result').children();
+		for (let i = 0; i < children.length; i++) {
+			const child = $(children[i]);
+			child.removeClass("active");
+			if (i === index) {
+				child.addClass("active");
+			}
+		}
+	}
+
+	function update_card_list () {
+		if ($myInput.value.length >= 3) {
+			show_list("card-list-result", true)
+			active_list_type = "card-list-result"
+			$("#card-list-result").empty()
+			const get_call = $.get("https://api.scryfall.com/cards/search?q=" + $myInput.value);
+			get_call.done(function (data) {
+				latest_data = data;
+				$.each(data["data"], function (index, element) {
+					const list_element = elementPrototypes.card_list_text_element(element["name"],
+						element["prints_search_uri"])
+					$("#card-list-result").append(list_element)
+				});
+			});
+		} else {
+			show_list("-", false)
+		}
+	}
+
+	function update_image_view(uri){
+		const get_call = $.get(uri);
+		get_call.done(function (data) {
+			$.each(data["data"], function (index, element) {
+				const list_element = elementPrototypes.card_list_image_element(element["name"],
+					element["image_uris"]["small"], element["image_uris"]["png"])
+				$("#card-image-group").append(list_element)
+			});
 		});
-	})
-}
+	}
+	function importSettingsJson(data){
+		const p_group = $("#properties-group");
+		$.each(data, function(index, element){
+			p_group.append(elementPrototypes.get_property_group(Date.now(), element.track, element.scale, element.x, element.y));
+		})
+	}
+
+	function init(){
+		csInterface = new CSInterface();
+
+		$(document).ready(function () {
+			console.log("[DEBUG] : " + "Extension Start")
+			$myInput = document.getElementById('card-search');
+			importSettingsJson()
+
+			// Add Track Setting
+			$(document).on("click", "#add-track-setting", function(_){
+				const p_group = $("#properties-group");
+				p_group.append(elementPrototypes.get_property_group(Date.now(), "", 100, 640, 360));
+			});
+
+			// Remove Track Setting
+			$(document).on("click", "button.close-setting", function(_){
+				const properties_id = jQuery(this).data("id");
+				$("#"+properties_id).remove();
+			});
+
+			// List entry click
+			$(document).on("click", "a.mtg-card", function(_){
+				if (latest_data){
+					console.log("[DEBUG] : " + "Download from list")
+					const this_name = jQuery(this).text();
+					$.each(latest_data["data"], function(index, element){
+						download_image(element, this_name)
+					});
+				}
+			});
+
+			// Button to find all versions of a card
+			$(document).on("click", "img.mtg-card", function(_){
+				console.log("[DEBUG] : " + "Update Version View")
+
+				$("#card-image-group").empty()
+				active_list_type = "card-image-result"
+				const this_uri = jQuery(this).data("print-search-uri");
+				update_image_view(this_uri);
+				setTimeout(function() {
+					show_list("card-image-result", true)
+				}, 150);
+			});
+
+			// Big cards
+			$(document).on("click", "img.set-card-img", function(_){
+				console.log("[DEBUG] : " + "Download from image")
+				active_list_type = "card-image-result"
+				const url = jQuery(this).data("card-uri");
+				const card_name = jQuery(this).data("card-name");
+				const props = {url:url, name:card_name, overwrite:true, tracks: collect_track_properties()}
+				downloadAndImport(props)
+			});
+
+			$('#card-search').on("focus", function(){
+				if ($('#card-list-result').children().length !== 0) {
+					if (active_list_type) {
+						show_list(active_list_type, true)
+					} else {
+						show_list("-", false)
+					}
+				}
+			})
+			.on("focusout", function(){
+				if (document.hasFocus()) {
+					setTimeout(function() {
+						show_list("-", false)
+						if (selected_index !== -1) {
+							selected_index = -1;
+							set_active(selected_index)
+						}
+					}, 150)
+				}
+			})
+			.on("keydown", function(event){
+				if (event.key === 'ArrowUp') {
+					event.preventDefault();
+					selected_index = Math.max(selected_index-1, -1);
+					set_active(selected_index)
+				}
+				else if (event.key === 'ArrowDown') {
+					event.preventDefault();
+					const num_children = $('#card-list-result').children().length
+					selected_index = Math.min(selected_index+1, num_children-1);
+					set_active(selected_index)
+				}
+				else if (event.key === 'Enter') {
+					if ($myInput.value.length >= 3) {
+						console.log("[DEBUG] : " + "Download from enter key")
+						if (selected_index === -1) {
+							const element = latest_data["data"][0]
+							download_image(element, element["name"])
+						} else {
+							const element = latest_data["data"][selected_index]
+							download_image(element, element["name"])
+						}
+						show_list("-", false)
+						$myInput.blur();
+					}
+					else {
+						clearTimeout(typing_timer);
+					}
+				}
+			})
+			.on("keyup", function(event) {
+				if (event.key === "Space" || event.key === "Backspace" ||
+					(event.key.length === 1 && (event.key >= "A" && event.key <= "Z") ||
+						(event.key >= "a" && event.key <= "z"))) {
+					selected_index = -1;
+					clearTimeout(typing_timer);
+					typing_timer = setTimeout(update_card_list, 200);
+				}
+			});
+		});
+	}
+
+	return {
+		beforeLoad: beforeLoad,
+		init: init,
+	}
+}();
