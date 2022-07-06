@@ -40,7 +40,6 @@ def copy_assets():
 
 def minify_build():
     for file in build_path.glob("**/*.*"):
-        print(file.suffix)
         if file.suffix in [".js", ".jsx"]:
             process_single_js_file(file.as_posix(), overwrite=True)
         elif file.suffix in ".css" and ".min." not in file.name:
