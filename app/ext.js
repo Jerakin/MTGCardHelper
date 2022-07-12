@@ -123,6 +123,9 @@ var MTGCardHelper = function(){
 	function downloadAndImport(args) {
 		console.log("[DEBUG] : " + "Download and Import: " + args.url)
 		args.name = args.name.replace(/[^a-z0-9-_]/gi, '-') + ".png";
+		args.tracks = collect_track_properties()
+		args.track_lock = $("#btn-check-lock")[0].checked ? $("#track-lock")[0].value: false;
+
 		// call the evalScript we made in the jsx file
 		csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
 			const SEP = get_path_sep(result);
@@ -193,11 +196,11 @@ var MTGCardHelper = function(){
 				})
 				const card_face = card_faces[similarities.indexOf(Math.max(...similarities))]
 				const url = card_face["image_uris"]["png"];
-				const props = {url:url, name:card_face["name"], overwrite:false, tracks: collect_track_properties()}
+				const props = {url:url, name:card_face["name"], overwrite:false}
 				downloadAndImport(props)
 			} else {
 				const url = element["image_uris"]["png"];
-				const props = {url:url, name:card_name, overwrite:false, tracks: collect_track_properties()}
+				const props = {url:url, name:card_name, overwrite:false}
 				downloadAndImport(props)
 			}
 		}
@@ -298,6 +301,11 @@ var MTGCardHelper = function(){
 				$("#"+properties_id).remove();
 			});
 
+			$('#btn-check-lock').on("change", function() {
+				console.log(this.checked)
+				$('#track-lock').prop('disabled', !this.checked)
+			});
+
 			// List entry click
 			$(document).on("click", "a.mtg-card", function(_){
 				if (latest_data){
@@ -328,10 +336,11 @@ var MTGCardHelper = function(){
 				active_list_type = "card-image-result"
 				const url = jQuery(this).data("card-uri");
 				const card_name = jQuery(this).data("card-name");
-				const props = {url:url, name:card_name, overwrite:true, tracks: collect_track_properties()}
+				const props = {url:url, name:card_name, overwrite:true}
 				downloadAndImport(props)
 			});
 
+			// Search for cards
 			$('#card-search').on("focus", function(){
 				if ($('#card-list-result').children().length !== 0) {
 					if (active_list_type) {

@@ -67,7 +67,7 @@ $._PPP_={
 		return clip_after.start
 	},
 
-	chInsertClip : function(clip){
+	chInsertClip : function(clip, target_track){
 		var seq = app.project.activeSequence;
 		if (seq) {
 			if (!clip.isSequence()) {
@@ -75,7 +75,9 @@ $._PPP_={
 					var targeted = [];
 					for (var i = 0; i < seq.videoTracks.numTracks; i++) {
 						var track = seq.videoTracks[i];
-						if (track.isTargeted()) {
+						if (track.isTargeted() && target_track === false) {
+							targeted.push(track);
+						} else if (target_track !== false && parseInt(target_track) - 1 === i) {
 							targeted.push(track);
 						}
 					}
@@ -161,7 +163,7 @@ $._PPP_={
 				clip = $._PPP_.chGetProjectItemWithPathInBin(arg_obj.file_path, bin);
 
 			}
-			var cValues = $._PPP_.chInsertClip(clip);
+			var cValues = $._PPP_.chInsertClip(clip, arg_obj.track_lock);
 			var track_item = cValues[0];
 			var track = cValues[1];
 			var properties = undefined;
