@@ -186,24 +186,10 @@ var MTGCardHelper = function(){
 	}
 
 	function download_image(element, card_name){
-		if (element["name"] === card_name) {
-			if ("card_faces" in element) {
-				let card_faces = []
-				let similarities = []
-				$.each(element["card_faces"], function (index, card_face) {
-					similarities.push(compareTwoStrings(card_face["name"], $myInput.value))
-					card_faces.push(card_face)
-				})
-				const card_face = card_faces[similarities.indexOf(Math.max(...similarities))]
-				const url = card_face["image_uris"]["png"];
-				const props = {url:url, name:card_face["name"], overwrite:false}
-				downloadAndImport(props)
-			} else {
-				const url = element["image_uris"]["png"];
-				const props = {url:url, name:card_name, overwrite:false}
-				downloadAndImport(props)
-			}
-		}
+		element = get_card_face(element);
+		const url = element["image_uris"]["png"];
+		const props = {url:url, name:element["name"], overwrite:false}
+		downloadAndImport(props)
 	}
 
 	function show_list(name, toggle) {
@@ -264,10 +250,25 @@ var MTGCardHelper = function(){
 		}
 	}
 
+	function get_card_face(card_response) {
+		if ("card_faces" in card_response) {
+			let card_faces = []
+			let similarities = []
+			$.each(card_response["card_faces"], function (index, card_face) {
+				similarities.push(compareTwoStrings(card_face["name"], $myInput.value))
+				card_faces.push(card_face)
+			})
+			return card_faces[similarities.indexOf(Math.max(...similarities))]
+		} else {
+			return card_response
+		}
+	}
+
 	function update_image_view(uri){
 		const get_call = $.get(uri);
 		get_call.done(function (data) {
 			$.each(data["data"], function (index, element) {
+				element = get_card_face(element);
 				const list_element = elementPrototypes.card_list_image_element(element["name"],
 					element["image_uris"]["small"], element["image_uris"]["png"])
 				$("#card-image-group").append(list_element)
