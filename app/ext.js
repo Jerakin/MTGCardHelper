@@ -111,15 +111,6 @@ var MTGCardHelper = function(){
 		})
 	}
 
-	function importSettingsJson(fn) {
-		csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
-			const SEP = get_path_sep(result);
-			const fullPath = result + SEP + 'mtgdeckhelper.json';
-			const data = fs.readFileSync(fullPath, {encoding:"utf-8"});
-			fn(JSON.parse(data));
-		})
-	}
-
 	function downloadAndImport(args) {
 		console.log("[DEBUG] : " + "Download and Import: " + args.url)
 		args.name = args.name.replace(/[^a-z0-9-_]/gi, '-') + ".png";
@@ -275,7 +266,16 @@ var MTGCardHelper = function(){
 			});
 		});
 	}
-	function importSettingsJson(data){
+	function importSettingsJson(fn) {
+		csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
+			const SEP = get_path_sep(result);
+			const fullPath = result + SEP + 'mtgdeckhelper.json';
+			const data = fs.readFileSync(fullPath, {encoding:"utf-8"});
+			fn(JSON.parse(data));
+		})
+	}
+
+	function populateTracks(data){
 		const p_group = $("#properties-group");
 		$.each(data, function(index, element){
 			p_group.append(elementPrototypes.get_property_group(Date.now(), element.track, element.scale, element.x, element.y));
@@ -288,7 +288,7 @@ var MTGCardHelper = function(){
 		$(document).ready(function () {
 			console.log("[DEBUG] : " + "Extension Start")
 			$myInput = document.getElementById('card-search');
-			importSettingsJson()
+			importSettingsJson(populateTracks)
 
 			// Add Track Setting
 			$(document).on("click", "#add-track-setting", function(_){

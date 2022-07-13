@@ -33,7 +33,6 @@ $._PPP_={
 
 	chProjectPath : function() {
 		const projectPath = app.project.path;
-		$._PPP_.updateEventPanel("Project Path: " + projectPath);
 		var sep = "\\";
 		if("/" === projectPath.slice(0, 1)){
 			sep = "/";
@@ -45,7 +44,6 @@ $._PPP_={
 
 		// rejoin the array, giving the parent directory of the Premiere project file
 		const joined = parsed.join(sep);
-		$._PPP_.updateEventPanel("Project Path Post Joined: " + joined);
 		return(joined);
 	},
 
