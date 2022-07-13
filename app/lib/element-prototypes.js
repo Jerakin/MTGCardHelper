@@ -48,9 +48,9 @@ var elementPrototypes = function(){
     </div>
     `}
 
-    function card_list_image_element(name, url, img) {
+    function card_list_image_element(name, download_url, display_url) {
         return `
-	<img class="set-card-img col" src="${img}" alt="SET" data-card-uri="${url}" data-card-name="${name}">
+	<img class="set-card-img col" src="${display_url}" alt="SET" data-card-uri="${download_url}" data-card-name="${name}">
     `}
 
 

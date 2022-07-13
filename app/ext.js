@@ -185,7 +185,7 @@ var MTGCardHelper = function(){
 		exportSettingsJson(track_data)
 	}
 
-	function download_image(element, card_name){
+	function download_image(element){
 		element = get_card_face(element);
 		const url = element["image_uris"]["png"];
 		const props = {url:url, name:element["name"], overwrite:false}
@@ -270,7 +270,7 @@ var MTGCardHelper = function(){
 			$.each(data["data"], function (index, element) {
 				element = get_card_face(element);
 				const list_element = elementPrototypes.card_list_image_element(element["name"],
-					element["image_uris"]["small"], element["image_uris"]["png"])
+					element["image_uris"]["png"], element["image_uris"]["small"])
 				$("#card-image-group").append(list_element)
 			});
 		});
@@ -310,10 +310,12 @@ var MTGCardHelper = function(){
 			// List entry click
 			$(document).on("click", "a.mtg-card", function(_){
 				if (latest_data){
-					console.log("[DEBUG] : " + "Download from list")
-					const this_name = jQuery(this).text();
+					const card_name = jQuery(this).text();
+					console.log("[DEBUG] : " + "Download from list - " + card_name)
 					$.each(latest_data["data"], function(index, element){
-						download_image(element, this_name)
+						if (element["name"] === card_name) {
+							download_image(element)
+						}
 					});
 				}
 			});
@@ -379,10 +381,10 @@ var MTGCardHelper = function(){
 						console.log("[DEBUG] : " + "Download from enter key")
 						if (selected_index === -1) {
 							const element = latest_data["data"][0]
-							download_image(element, element["name"])
+							download_image(element)
 						} else {
 							const element = latest_data["data"][selected_index]
-							download_image(element, element["name"])
+							download_image(element)
 						}
 						show_list("-", false)
 						$myInput.blur();
