@@ -13,4 +13,4 @@ I recommend you to use [Anastasiy's Extension Manager](https://install.anastasiy
 
 
 ___
-_MTG Card Helper may use the trademarks and other intellectual property of Wizards of the Coast LLC, which is permitted under Wizards' Fan Site Policy.__
+_MTG Card Helper may use the trademarks and other intellectual property of Wizards of the Coast LLC, which is permitted under Wizards' Fan Site Policy._
