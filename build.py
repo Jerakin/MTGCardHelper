@@ -81,8 +81,7 @@ def update_version(v):
 @click.command()
 @click.option("--debug", default=False)
 @click.option("--no-verify", default=False)
-@click.option("--minify", default=True)
-def build(debug, no_verify, minify):
+def build(debug, no_verify):
     if not debug:
         exclude.append(".debug")
 
@@ -90,8 +89,8 @@ def build(debug, no_verify, minify):
     setup()
     copy_assets()
     update_version(app_version)
-    if minify:
-        minify_build()
+    if not debug:
+        unset_debug()
     build_app(app_version)
     if not no_verify:
         verify_app(app_version)
