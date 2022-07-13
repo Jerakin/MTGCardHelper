@@ -65,28 +65,45 @@ $._PPP_={
 		return clip_after.start
 	},
 
-	chInsertClip : function(clip, target_track){
+	chInsertClip : function(clip, args){
+		const options = JSON.parse(args);
+
 		var seq = app.project.activeSequence;
 		if (seq) {
 			if (!clip.isSequence()) {
 				if (clip.type !== ProjectItemType.BIN) {
 					var targeted = [];
+					// Find the track that we are targeting
 					for (var i = 0; i < seq.videoTracks.numTracks; i++) {
 						var track = seq.videoTracks[i];
-						if (track.isTargeted() && target_track === false) {
-							targeted.push(track);
-						} else if (target_track !== false && parseInt(target_track) - 1 === i) {
-							targeted.push(track);
+						if (track.isTargeted() && options.track_lock === false) {
+							targeted.push([i, track]);
+						} else if (options.track_lock !== false && parseInt(options.track_lock) - 1 === i) {
+							targeted.push([i, track]);
 						}
 					}
-					var targetVTrack = targeted[(targeted.length - 1)];
+
+					var targetVTrack_items = targeted[(targeted.length - 1)];
+					var targetVTrack = targetVTrack_items[1]
+					var targetVTrackIndex = targetVTrack_items[0]
+
+					// Find the targeted tracks options
+					var track_options = {}
+					for (var k = 0; k < options.tracks.length; k++) {
+						var t = options.tracks[k]
+						if (t.track === targetVTrackIndex+1) {
+							track_options = t
+						}
+					}
+
 					if (targetVTrack) {
 						var now = seq.getPlayerPosition()
 						var end_time = $._PPP_.chTimeFromPlayerPositionToNextClipStart(targetVTrack)
+						var length = Number(track_options.track_length)
 						if (end_time) {
-							clip.setOutPoint(Math.min((end_time.seconds - now.seconds), 3), 1);
+							clip.setOutPoint(Math.min((end_time.seconds - now.seconds), length), 1);
 						} else {
-							clip.setOutPoint(3, 1);
+							clip.setOutPoint(length, 1);
 						}
 						targetVTrack.overwriteClip(clip, now.ticks);
 						// Find the newly added video track and return it
@@ -161,7 +178,7 @@ $._PPP_={
 				clip = $._PPP_.chGetProjectItemWithPathInBin(arg_obj.file_path, bin);
 
 			}
-			var cValues = $._PPP_.chInsertClip(clip, arg_obj.track_lock);
+			var cValues = $._PPP_.chInsertClip(clip, args);
 			var track_item = cValues[0];
 			var track = cValues[1];
 			var properties = undefined;

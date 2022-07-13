@@ -1,5 +1,5 @@
 var elementPrototypes = function(){
-    function track_setting_proto(id, track, scale, x, y){
+    function track_setting_proto(id, track, scale, x, y, track_length){
         return`
     <div class="p-2 border-start border-1 border-dark border-opacity-10" id="properties-${id}" data-id="${id}">
         <label for="track-${id}" class="d-none">Track</label>
@@ -12,14 +12,24 @@ var elementPrototypes = function(){
             </div>
             <button class="close-setting btn btn-close col-1" data-id="properties-${id}"></button>
         </div>
-        <label for="scale-${id}" class="d-none">Scale</label>
-        <div class="input-group mb-2 mr-sm-2">
-            <div class="input-group-prepend">
-                <div class="input-group-text">Scale</div>
+        <div class="row">
+            <label for="scale-${id}" class="d-none">Scale</label>
+            <div class="input-group mb-2 mr-sm-2 col">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">Scale</div>
+                </div>
+                <input type="text" class="form-control" id="scale-${id}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="${scale}">
             </div>
-            <input type="text" class="form-control" id="scale-${id}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="${scale}">
+            
+            <label for="length-${id}" class="d-none">Length</label>
+            <div class="input-group mb-2 mr-sm-2 col">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">Length</div>
+                </div>
+                <input type="text" class="form-control" id="length-${id}" onkeypress="return (event.charCode>=45 && event.charCode<=57)" value="${track_length}">
+            </div>
         </div>
-    
+
         <div class="row">
             <label for="pos-x-${id}" class="d-none">PosX</label>
             <div class="input-group mb-2 mr-sm-2 col">

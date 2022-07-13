@@ -161,6 +161,7 @@ var MTGCardHelper = function(){
 			p.track = document.getElementById('track-'+ properties_id).value;
 			p.x = document.getElementById('pos-x-'+ properties_id).value;
 			p.y = document.getElementById('pos-y-'+ properties_id).value;
+			p.track_length = document.getElementById('length-'+ properties_id).value;
 
 			p.scale = p.scale && parseFloat(p.scale)
 			p.track = p.track && parseInt(p.track)
@@ -278,7 +279,7 @@ var MTGCardHelper = function(){
 	function populateTracks(data){
 		const p_group = $("#properties-group");
 		$.each(data, function(index, element){
-			p_group.append(elementPrototypes.get_property_group(Date.now(), element.track, element.scale, element.x, element.y));
+			p_group.append(elementPrototypes.get_property_group(Date.now(), element.track, element.scale, element.x, element.y, element.track_length));
 		})
 	}
 
@@ -293,7 +294,7 @@ var MTGCardHelper = function(){
 			// Add Track Setting
 			$(document).on("click", "#add-track-setting", function(_){
 				const p_group = $("#properties-group");
-				p_group.append(elementPrototypes.get_property_group(Date.now(), "", 100, 640, 360));
+				p_group.append(elementPrototypes.get_property_group(Date.now(), "", 100, 640, 360, 3));
 			});
 
 			// Remove Track Setting
