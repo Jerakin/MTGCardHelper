@@ -86,7 +86,7 @@ $._PPP_={
 						var now = seq.getPlayerPosition()
 						var end_time = $._PPP_.chTimeFromPlayerPositionToNextClipStart(targetVTrack)
 						if (end_time) {
-							clip.setOutPoint((end_time.seconds - now.seconds), 1);
+							clip.setOutPoint(Math.min((end_time.seconds - now.seconds), 3), 1);
 						} else {
 							clip.setOutPoint(3, 1);
 						}
