@@ -78,6 +78,31 @@ def update_version(v):
     tree.write(source.as_posix())
 
 
+def set_release():
+    app, panel, name = "com.jerakin.mtgcardhelper", "com.jerakin.mtgcardhelper.panel", "MTG Card Helper"
+
+    source = build_path / "CSXS" / "manifest.xml"
+
+    tree = ET.parse(source.as_posix())
+    xml_root = tree.getroot()
+    xml_root.set("ExtensionBundleId", app)
+    xml_root.set("ExtensionBundleName", name)
+
+    ext_list = xml_root.find("ExtensionList")
+    for ext in ext_list.iter("Extension"):
+        ext.set("Id", panel)
+
+    ext_list = xml_root.find("DispatchInfoList")
+    for ext in ext_list.iter("Extension"):
+        ext.set("Id", panel)
+        for inf in ext.iter("DispatchInfo"):
+            for ui in inf.iter("UI"):
+                for menu in ui.iter("Menu"):
+                    menu.text = name
+
+    tree.write(source.as_posix())
+
+
 @click.command()
 @click.option("--debug", default=False)
 @click.option("--no-verify", default=False)
@@ -90,7 +115,7 @@ def build(debug, no_verify):
     copy_assets()
     update_version(app_version)
     if not debug:
-        unset_debug()
+        set_release()
     build_app(app_version)
     if not no_verify:
         verify_app(app_version)

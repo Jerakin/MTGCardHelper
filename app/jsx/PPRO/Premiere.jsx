@@ -2,7 +2,9 @@
 
 $._PPP_={
 	keepPanelLoaded : function () {
-		app.setExtensionPersistent("com.jerakin.mtgcardhelper", 0); // 0, while testing (to enable rapid reload); 1 for "Never unload me, even when not visible."
+		// 0, while testing (to enable rapid reload); 1 for "Never unload me, even when not visible."
+		app.setExtensionPersistent("com.jerakin.mtgcardhelper", 1);
+		app.setExtensionPersistent("com.jerakin.mtgcardhelperdebug", 0);
 	},
 
 	updateEventPanel : function (message) {
