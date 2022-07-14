@@ -113,7 +113,9 @@ var MTGCardHelper = function(){
 
 	function downloadAndImport(args) {
 		console.log("[DEBUG] : " + "Download and Import: " + args.url)
-		args.name = args.name.replace(/[^a-z0-9-_]/gi, '-') + ".png";
+		const set = 'set' in args ? args.set : "";
+
+		args.name = args.name.replace(/[^a-z0-9-_]/gi, '-')  + set + ".png";
 		args.tracks = collect_track_properties()
 		args.track_lock = $("#btn-check-lock")[0].checked ? $("#track-lock")[0].value: false;
 
@@ -262,7 +264,7 @@ var MTGCardHelper = function(){
 			$.each(data["data"], function (index, element) {
 				element = get_card_face(element);
 				const list_element = elementPrototypes.card_list_image_element(element["name"],
-					element["image_uris"]["png"], element["image_uris"]["small"])
+					element["image_uris"]["png"], element["image_uris"]["small"], element['set'])
 				$("#card-image-group").append(list_element)
 			});
 		});
@@ -340,7 +342,8 @@ var MTGCardHelper = function(){
 				active_list_type = "card-image-result"
 				const url = jQuery(this).data("card-uri");
 				const card_name = jQuery(this).data("card-name");
-				const props = {url:url, name:card_name, overwrite:true}
+				const set = jQuery(this).data("set");
+				const props = {url:url, name:card_name, overwrite:true, set:set}
 				downloadAndImport(props)
 			});
 
