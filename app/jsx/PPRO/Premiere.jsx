@@ -101,7 +101,7 @@ $._PPP_={
 					if (targetVTrack) {
 						var now = seq.getPlayerPosition()
 						var end_time = $._PPP_.chTimeFromPlayerPositionToNextClipStart(targetVTrack)
-						var length = Number(track_options.track_length)
+						var length = Number(track_options.track_length) || 3
 						if (end_time) {
 							clip.setOutPoint(Math.min((end_time.seconds - now.seconds), length), 1);
 						} else {
