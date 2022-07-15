@@ -11,7 +11,7 @@
 * accordance with the terms of the Adobe license agreement accompanying
 * it. If you have received this file from a source other than Adobe,
 * then your use, modification, or distribution of it requires the prior
-* written permission of Adobe. 
+* written permission of Adobe.
 **************************************************************************/
 -->
 <html>
@@ -33,45 +33,66 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100" onLoad="onLoaded()" oncontextmenu="return false;">
-	<div class="container d-flex flex-column">
-		<header class="p-2 m-2">
-			<a class="text-decoration-none text-dark h1" href="javascript:history.go(0)">
-				MTG Card Helper
-			</a>
-		</header>
-		<div class="p-2 form-group w-100">
-			<label class="form-label" for="card-search">Search</label>
-			<input class="form-control" type="text" id="card-search" name="card-search">
-		</div>
-		<div class="row p-2">
-			<div class="form-check col-3 ms-3">
-				<input type="checkbox" class="form-check-input" id="btn-check-lock" style="transform: scale(1.8); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0) !important;">
-				<label class="form-check-label" for="btn-check-lock">Lock</label>
-			</div>
-			<div class="input-group col">
-				<div class="input-group-prepend">
-					<div class="input-group-text">Track</div>
+	<div class="row h-100 w-100 flex-grow-1">
+		<div class="col-1">
+			<div class="container h-100 ps-0">
+				<button class="position-absolute top-50 translate-middle-y border-opacity-50 bg-white border-start-0 border-secondary rounded-end h-25" type="button" data-bs-toggle="offcanvas" data-bs-target="#track-settings-offcanvas" aria-controls="track-settings-offcanvas">
+				  >
+				</button>
+				<div class="offcanvas offcanvas-start" tabindex="-1" id="track-settings-offcanvas" aria-labelledby="track-settings-offcanvas-label">
+					<div class="offcanvas-header">
+						<h5 class="offcanvas-title" id="track-settings-offcanvas-label">Track Settings</h5>
+						<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+					</div>
+					<div class="offcanvas-body">
+						<div>
+							<div class="p-2" id="properties-group">
+							</div>
+							<button id="add-track-setting" class="btn btn-primary w-75 shadow-none m-auto mb-5">Add Track Setting</button>
+						</div>
+					</div>
 				</div>
-				<label for="track-lock" class="d-none">Track</label>
-				<input type="number" class="form-control" min="1" id="track-lock" value="1" disabled>
 			</div>
 		</div>
-		<div id="parent-result" class="p-2 result-list w-100 d-none">
-			<div id="card-list-result" class="list-group d-none overflow-auto h-100"></div>
-			<div id="card-image-result" class="d-none overflow-auto h-100">
-				<div id="card-image-group" class="gx-1 gy-1 me-0 row row-cols-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 row-cols-xl-7">
+		<div class="col">
+			<div class="container d-flex flex-column">
+				<header class="p-2 m-2">
+					<a class="text-decoration-none text-dark h1" href="javascript:history.go(0)">
+						MTG Card Helper
+					</a>
+				</header>
+				<div class="p-2 form-group w-100">
+					<label class="form-label" for="card-search">Search</label>
+					<input class="form-control" type="text" id="card-search" name="card-search">
+				</div>
+				<div class="row p-2">
+					<div class="form-check col-3 ms-3">
+						<input type="checkbox" class="form-check-input" id="btn-check-lock" style="transform: scale(1.8); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0) !important;">
+						<label class="form-check-label" for="btn-check-lock">Lock</label>
+					</div>
+					<div class="input-group col">
+						<div class="input-group-prepend">
+							<div class="input-group-text">Track</div>
+						</div>
+						<label for="track-lock" class="d-none">Track</label>
+						<input type="number" class="form-control" min="1" id="track-lock" value="1" disabled>
+					</div>
+				</div>
+				<div id="parent-result" class="p-2 result-list w-100 d-none">
+					<div id="card-list-result" class="list-group d-none overflow-auto h-100"></div>
+					<div id="card-image-result" class="d-none overflow-auto h-100">
+						<div id="card-image-group" class="gx-1 gy-1 me-0 row row-cols-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 row-cols-xl-7">
 
+						</div>
+					</div>
 				</div>
+				<footer class="fixed-bottom bg-white">
+					<div>Created by <a href="https://github.com/Jerakin" target="_blank">Jerakin</a>
+						| Powered by <a href="https://www.scryfall.com/" target="_">Scryfall</a></div>
+				</footer>
 			</div>
 		</div>
-		<div class="p-2" id="properties-group">
-		</div>
-		<footer class="fixed-bottom bg-white">
-			<div>Created by <a href="https://github.com/Jerakin" target="_blank">Jerakin</a>
-				| Powered by <a href="https://www.scryfall.com/" target="_">Scryfall</a></div>
-		</footer>
-		<button id="add-track-setting" class="btn btn-primary w-75 shadow-none m-auto mb-5">Add Track Setting</button>
-	</div>
+    </div>
 </body>
 <script>
 	document.body.onbeforeunload = function() { MTGCardHelper.beforeLoad() };
