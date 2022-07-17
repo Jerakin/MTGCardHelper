@@ -13,7 +13,7 @@
 **************************************************************************/
 
 .result-list {
-    height: calc(100vh - (51px + 86px + 24px + 30px));
+    height: calc(100vh - (51px + 86px + 24px + 30px + 27px));
     width: calc(100vw - 35px);
 }
 
