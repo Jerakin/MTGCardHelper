@@ -54,7 +54,7 @@ var elementPrototypes = function(){
         return `
     <div class='d-flex justify-content-between list-group-item list-group-item-action'>
         <a class='mtg-card text-decoration-none text-dark align-self-start w-100 d-block' href='#'>${name}</a>
-        <img class="mtg-card img-fluid h-100" src="assets/files.png" alt="SET" data-print-search-uri="${url}">
+        <img class="mtg-card" src="assets/files.png" alt="SET" data-print-search-uri="${url}">
     </div>
     `}
 

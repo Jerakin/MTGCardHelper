@@ -16,3 +16,8 @@
     height: calc(100vh - (51px + 86px + 24px + 30px));
     width: calc(100vw - 35px);
 }
+
+.mtg-card {
+    width: 32px;
+    height: 32px;
+}
