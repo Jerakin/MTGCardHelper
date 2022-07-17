@@ -393,10 +393,10 @@ var MTGCardHelper = function(){
 						show_list("-", false)
 						$myInput.blur();
 					}
-					else {
-						clearTimeout(typing_timer);
-					}
-				}
+                }
+                else {
+                    clearTimeout(typing_timer);
+                }
 			})
 			.on("keyup", function(event) {
 				if (event.key === "Space" || event.key === "Backspace" ||
@@ -404,7 +404,7 @@ var MTGCardHelper = function(){
 						(event.key >= "a" && event.key <= "z"))) {
 					selected_index = -1;
 					clearTimeout(typing_timer);
-					typing_timer = setTimeout(update_card_list, 200);
+					typing_timer = setTimeout(update_card_list, 100);
 				}
 			});
 		});
