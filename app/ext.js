@@ -245,7 +245,7 @@ var MTGCardHelper = function(){
 	}
 
 	function get_card_face(card_response) {
-		if ("card_faces" in card_response) {
+		if ("layout" in card_response && card_response["layout"] === "modal_dfc") {
 			let card_faces = []
 			let similarities = []
 			$.each(card_response["card_faces"], function (index, card_face) {
