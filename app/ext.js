@@ -316,7 +316,13 @@ var MTGCardHelper = function(){
 			// Add Track Setting
 			$(document).on("click", "#add-track-setting", function(_){
 				const p_group = $("#properties-group");
-				p_group.append(elementPrototypes.get_property_group(Date.now(), "", 100, 640, 360, 3));
+				csInterface.evalScript('$._PPP_.chGetSequenceSize()', function(result) {
+					var v = result.split(",")
+					var x = Math.ceil(parseInt(v[0]) * 0.5)
+					var y = Math.ceil(parseInt(v[1]) * 0.5)
+					p_group.append(elementPrototypes.get_property_group(Date.now(), "", 100, x, y, 3));
+				})
+
 			});
 
 			// Remove Track Setting

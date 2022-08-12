@@ -49,6 +49,11 @@ $._PPP_={
 		return(joined);
 	},
 
+	chGetSequenceSize : function() {
+		var seq = app.project.activeSequence;
+		return [seq.frameSizeHorizontal, seq.frameSizeVertical]
+	},
+
 	chTimeFromPlayerPositionToNextClipStart : function(track) {
 		var now = app.project.activeSequence.getPlayerPosition()
 		var clip_after = undefined;
