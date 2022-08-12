@@ -285,6 +285,23 @@ var MTGCardHelper = function(){
 		})
 	}
 
+	function getPluginVersion() {
+		const path = csInterface.getSystemPath(SystemPath.EXTENSION);
+		const data = fs.readFileSync(`${path}/CSXS/manifest.xml`);
+
+		if (window.DOMParser) {
+			const parser = new DOMParser();
+			const xmlDoc = parser.parseFromString(data.toString(), 'text/xml');
+			const children = xmlDoc.children;
+
+			for (let i = 0; i <= children.length; i++) {
+				if (children[i] && children[i].getAttribute('ExtensionBundleVersion')) {
+					return children[i].getAttribute('ExtensionBundleVersion');
+				}
+			}
+		}
+	}
+
 	function init(){
 		csInterface = new CSInterface();
 
@@ -292,6 +309,9 @@ var MTGCardHelper = function(){
 			console.log("[DEBUG] : " + "Extension Start")
 			$myInput = document.getElementById('card-search');
 			importSettingsJson(populateTracks)
+
+			// Set version
+			$('#version-string').text(getPluginVersion())
 
 			// Add Track Setting
 			$(document).on("click", "#add-track-setting", function(_){
