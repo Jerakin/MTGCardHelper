@@ -369,7 +369,7 @@ var MTGCardHelper = function(){
 
 			// Search for cards
 			$('#card-search').on("focus", function(){
-				if ($('#card-list-result').children().length !== 0) {
+				if ($('#card-list-result').children().length !== 0 && $myInput.value.length >= 3) {
 					if (active_list_type) {
 						show_list(active_list_type, true)
 					} else {
