@@ -174,7 +174,12 @@ var MTGCardHelper = function(){
 		return prop
 	}
 
-	function beforeLoad() {
+	function loadSettings() {
+		importSettingsJson(populateTracks)
+	}
+
+	function saveSettings() {
+		console.log("[DEBUG] : " + "Save settings")
 		const track_data = collect_track_properties()
 		exportSettingsJson(track_data)
 	}
@@ -273,6 +278,7 @@ var MTGCardHelper = function(){
 		csInterface.evalScript('$._PPP_.chProjectPath()', function(result) {
 			const SEP = get_path_sep(result);
 			const fullPath = result + SEP + 'mtgdeckhelper.json';
+			console.log("[DEBUG] : " + "Loading settings: " + fullPath)
 			const data = fs.readFileSync(fullPath, {encoding:"utf-8"});
 			fn(JSON.parse(data));
 		})
@@ -308,7 +314,7 @@ var MTGCardHelper = function(){
 		$(document).ready(function () {
 			console.log("[DEBUG] : " + "Extension Start")
 			$myInput = document.getElementById('card-search');
-			importSettingsJson(populateTracks)
+			loadSettings()
 
 			// Set version
 			$('#version-string').text(getPluginVersion())
@@ -326,9 +332,8 @@ var MTGCardHelper = function(){
 			});
 
 			// Remove Track Setting
-			$(document).on("click", "button.close-setting", function(_){
-				const properties_id = jQuery(this).data("id");
-				$("#"+properties_id).remove();
+			$(document).on("click", "#close-track-setting", function(_){
+				saveSettings()
 			});
 
 			$('#btn-check-lock').on("change", function() {
@@ -437,7 +442,7 @@ var MTGCardHelper = function(){
 	}
 
 	return {
-		beforeLoad: beforeLoad,
+		beforeUnload: saveSettings,
 		init: init,
 	}
 }();

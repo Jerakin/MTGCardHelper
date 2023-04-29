@@ -45,8 +45,7 @@ $._PPP_={
 		parsed.pop();
 
 		// rejoin the array, giving the parent directory of the Premiere project file
-		const joined = parsed.join(sep);
-		return(joined);
+		return parsed.join(sep);
 	},
 
 	chGetSequenceSize : function() {
