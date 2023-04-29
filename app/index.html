@@ -29,11 +29,12 @@
 	<link id="bootstrap" href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
 	<link id="style" href="css/style.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript">
+		MTGCardHelper.onLoaded();
 		MTGCardHelper.init();
 	</script>
 </head>
 
-<body class="d-flex flex-column min-vh-100" onLoad="onLoaded()" oncontextmenu="return false;">
+<body class="d-flex flex-column min-vh-100" oncontextmenu="return false;">
 	<div class="row h-100 w-100 flex-grow-1">
 		<div class="col-1">
 			<div class="container h-100 ps-0">
@@ -95,8 +96,5 @@
 		</div>
     </div>
 </body>
-<script>
-	document.body.onbeforeunload = function() { MTGCardHelper.beforeUnload() };
-</script>
 
 </html>

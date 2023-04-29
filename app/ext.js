@@ -324,14 +324,15 @@ var MTGCardHelper = function(){
 
 	function init(){
 		csInterface = new CSInterface();
-
+		$(window).on("load", function () {
+			console.log("[DEBUG] : " + "Extension Loaded")
+			loadSettings()
+			// Set version
+			$('#version-string').text(getPluginVersion())
+		});
 		$(document).ready(function () {
 			console.log("[DEBUG] : " + "Extension Start")
 			$myInput = document.getElementById('card-search');
-			loadSettings()
-
-			// Set version
-			$('#version-string').text(getPluginVersion())
 
 			// Add Track Setting
 			$(document).on("click", "#add-track-setting", function(_){
@@ -456,7 +457,7 @@ var MTGCardHelper = function(){
 	}
 
 	return {
-		beforeUnload: saveSettings,
 		init: init,
+		onLoaded: onLoaded,
 	}
 }();
