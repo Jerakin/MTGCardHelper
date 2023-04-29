@@ -250,7 +250,9 @@ var MTGCardHelper = function(){
 	}
 
 	function get_card_face(card_response) {
-		if ("layout" in card_response && card_response["layout"] === "modal_dfc") {
+		if ("image_uris" in card_response) {
+			return card_response
+		} else {
 			let card_faces = []
 			let similarities = []
 			$.each(card_response["card_faces"], function (index, card_face) {
@@ -258,8 +260,6 @@ var MTGCardHelper = function(){
 				card_faces.push(card_face)
 			})
 			return card_faces[similarities.indexOf(Math.max(...similarities))]
-		} else {
-			return card_response
 		}
 	}
 
