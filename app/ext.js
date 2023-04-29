@@ -263,14 +263,28 @@ var MTGCardHelper = function(){
 		}
 	}
 
+	function get_all_card_faces(card_response) {
+		let card_faces = []
+		if ("image_uris" in card_response) {
+			card_faces.push(card_response)
+		} else {
+			$.each(card_response["card_faces"], function (index, card_face) {
+				card_faces.push(card_face)
+			})
+		}
+		return card_faces
+	}
 	function update_image_view(uri){
 		const get_call = $.get(uri);
 		get_call.done(function (data) {
 			$.each(data["data"], function (index, element) {
-				element = get_card_face(element);
-				const list_element = elementPrototypes.card_list_image_element(element["name"],
-					element["image_uris"]["png"], element["image_uris"]["small"], element['set'])
-				$("#card-image-group").append(list_element)
+				const card_elements = get_all_card_faces(element);
+				for (let i = 0; i < card_elements.length; i++) {
+					element = card_elements[i]
+					const list_element = elementPrototypes.card_list_image_element(element["name"],
+						element["image_uris"]["png"], element["image_uris"]["small"], element['set'])
+					$("#card-image-group").append(list_element)
+				}
 			});
 		});
 	}
