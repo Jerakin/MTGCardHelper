@@ -347,6 +347,11 @@ var MTGCardHelper = function(){
 			});
 
 			// Remove Track Setting
+			$(document).on("click", "button.close-setting", function(_) {
+				const properties_id = jQuery(this).data("id");
+				$("#" + properties_id).remove();
+			});
+
 			$(document).on("click", "#close-track-setting", function(_){
 				saveSettings()
 			});
